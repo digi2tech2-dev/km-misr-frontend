@@ -10,7 +10,6 @@ import {
   Globe,
   Lock,
   Mail,
-  Sparkles,
   TicketCheck,
   User,
 } from 'lucide-react';
@@ -877,14 +876,14 @@ const countryOptions = useMemo(() => {
                 fetchPriority="high"
               />
             </div>
-            <div className={styles.brandDivider}><span /></div>
+            <p className={styles.brandName} dir="rtl">أولاد البلد</p>
+            <div className={styles.flagAccent} aria-hidden="true" />
           </div>
 
           <section className={styles.formCard} data-auth-no-sparkle>
             {resetMode ? (
               <div className={styles.resetPanel}>
                 <div className={styles.formIntro}>
-                  <div className={styles.formLogo}><img src={logoUrl} alt={platformName} /></div>
                   <h1 className={styles.choiceTitle}>
                     {dir === 'rtl' ? 'إعادة تعيين كلمة المرور' : 'Reset your password'}
                   </h1>
@@ -932,12 +931,8 @@ const countryOptions = useMemo(() => {
               </div>
             ) : showAuthChoice ? (
               <div className={styles.choicePanel}>
-                <div className={styles.choiceBrand}>
-                  <span>CLASH</span> <strong>cash</strong>
-                  <Sparkles aria-hidden="true" className={styles.choiceSparkle} />
-                </div>
                 <h1 className={styles.choiceTitle}>
-                  {dir === 'rtl' ? 'أهلاً بك في KM اولاد مصر' : 'Welcome to KM اولاد مصر'}
+                  {dir === 'rtl' ? 'أهلاً وسهلاً بيك' : 'Welcome'}
                 </h1>
                 <p className={styles.choiceSubtitle}>
                   {dir === 'rtl' ? 'اختر طريقة تسجيل الدخول للمتابعة' : 'Choose how you would like to sign in'}
@@ -983,7 +978,6 @@ const countryOptions = useMemo(() => {
             ) : (
             <>
             <div className={styles.formIntro}>
-              <div className={styles.formLogo}><img src={logoUrl} alt={platformName} /></div>
               <span className={styles.eyebrow}>{isLogin ? t('auth.login') : t('auth.register')}</span>
               <h2 className={styles.formTitle}>
                 {isLogin

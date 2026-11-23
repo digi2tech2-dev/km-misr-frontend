@@ -1,6 +1,7 @@
 import React from 'react';
 import { Facebook, Instagram, MessageCircle, Phone } from 'lucide-react';
 import { usePlatformBrand } from '../../context/ThemeContext';
+import { WHATSAPP_CHANNEL_URL } from '../../utils/whatsapp';
 
 const safeHttpsUrl = (value) => {
   if (typeof value !== 'string' || !value.trim()) return '';
@@ -12,18 +13,32 @@ const safeHttpsUrl = (value) => {
   }
 };
 
+const getWhatsAppSocialUrl = (value) => {
+  const href = safeHttpsUrl(value);
+  if (!href) return WHATSAPP_CHANNEL_URL;
+
+  const url = new URL(href);
+  const host = url.hostname.replace(/^www\./, '');
+  const isGroup = host === 'chat.whatsapp.com';
+  const isChannel = host === 'whatsapp.com' && /^\/channel(?:\/|$)/i.test(url.pathname);
+  return isGroup || isChannel ? WHATSAPP_CHANNEL_URL : href;
+};
+
 const StoreSocialLinks = ({ isArabic = true }) => {
   const { platformName, socialMedia } = usePlatformBrand();
   const phone = socialMedia.phone.trim();
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '';
+  const whatsappHref = getWhatsAppSocialUrl(socialMedia.whatsapp);
+  const isChannel = whatsappHref === WHATSAPP_CHANNEL_URL;
+  const whatsappLabel = isChannel
+    ? (isArabic ? `قناة ${platformName} على واتساب` : `${platformName} WhatsApp channel`)
+    : (isArabic ? `واتساب ${platformName}` : `${platformName} on WhatsApp`);
   const links = [
     phoneHref && { key: 'phone', href: phoneHref, title: phone, label: isArabic ? `اتصل بـ ${platformName}` : `Call ${platformName}`, Icon: Phone, displayText: phone },
-    safeHttpsUrl(socialMedia.whatsapp) && { key: 'whatsapp', href: safeHttpsUrl(socialMedia.whatsapp), title: 'WhatsApp', label: isArabic ? `واتساب ${platformName}` : `${platformName} on WhatsApp`, Icon: MessageCircle },
+    { key: 'whatsapp', href: whatsappHref, title: whatsappLabel, label: whatsappLabel, Icon: MessageCircle },
     safeHttpsUrl(socialMedia.instagram) && { key: 'instagram', href: safeHttpsUrl(socialMedia.instagram), title: 'Instagram', label: isArabic ? `إنستجرام ${platformName}` : `${platformName} on Instagram`, Icon: Instagram },
     safeHttpsUrl(socialMedia.facebook) && { key: 'facebook', href: safeHttpsUrl(socialMedia.facebook), title: 'Facebook', label: isArabic ? `فيسبوك ${platformName}` : `${platformName} on Facebook`, Icon: Facebook },
   ].filter(Boolean);
-
-  if (!links.length) return null;
 
   return (
     <nav aria-label={isArabic ? 'السوشيال ميديا' : 'Social media'} className="flex flex-wrap items-center justify-center gap-2" dir="ltr">
@@ -46,13 +61,12 @@ const StoreSocialLinks = ({ isArabic = true }) => {
 };
 
 const SidebarSocialFooter = ({ isArabic = true }) => {
-  const { platformName, socialMedia } = usePlatformBrand();
-  const hasSocialLinks = Object.values(socialMedia).some((value) => Boolean(value.trim()));
+  const { platformName } = usePlatformBrand();
 
   return (
     <div className="relative z-10 shrink-0 border-t border-[color:rgb(var(--color-border-rgb)/0.55)] px-3 pb-3 pt-2.5 text-center" dir="ltr">
       <div className="text-[0.62rem] font-semibold text-[var(--color-text-secondary)]">© 2026 {platformName}</div>
-      {hasSocialLinks && <div className="mt-2"><StoreSocialLinks isArabic={isArabic} /></div>}
+      <div className="mt-2"><StoreSocialLinks isArabic={isArabic} /></div>
     </div>
   );
 };

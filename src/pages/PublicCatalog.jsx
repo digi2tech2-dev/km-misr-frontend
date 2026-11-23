@@ -35,6 +35,7 @@ import LoadingSkeleton from '../components/products/LoadingSkeleton';
 import EmptyState from '../components/products/EmptyState';
 import { getDefaultRouteForRole } from '../utils/authRoles';
 import { getSearchSiteName, storefrontDescription } from '../utils/seo';
+import { WHATSAPP_CHANNEL_URL } from '../utils/whatsapp';
 import {
   createStorefrontCategories,
   createStorefrontProducts,
@@ -50,8 +51,6 @@ import targetSalesImage from '../assets/تارجت.jpg';
 
 const dataProvider = (import.meta.env.VITE_DATA_PROVIDER || 'mock').toLowerCase();
 const isRealProvider = dataProvider === 'real';
-const WHATSAPP_CHANNEL_URL = 'https://chat.whatsapp.com/EhP71my5sGm2VXafTk12Qw';
-const SLIDE_TWO_URL = WHATSAPP_CHANNEL_URL;
 const PUBLIC_NOTICES_SEEN_KEY = 'ka-card-public-notices-seen-v1';
 const normalizeCategoryKey = (value) => String(value || '').trim().toLowerCase();
 
@@ -302,7 +301,7 @@ const PublicCatalog = () => {
   const heroSlides = useMemo(() => {
     const defaults = [
       { id: 'landing-slide-1', image: slideOneImage, title: '' },
-      { id: 'landing-slide-2', image: slideTwoImage, title: '', href: SLIDE_TWO_URL },
+      { id: 'landing-slide-2', image: slideTwoImage, alt: 'قناة واتساب الرسمية', href: WHATSAPP_CHANNEL_URL },
       { id: 'landing-slide-3', image: slideThreeImage, title: '', href: '/referral' },
       { id: 'landing-slide-4', image: slideFourImage, title: '' },
       { id: 'landing-slide-5', image: slideFiveImage, title: '' },
@@ -648,156 +647,60 @@ const PublicCatalog = () => {
       {typeof document !== 'undefined' && createPortal(
         <>
       {showServiceNotice && (
-        <div className="public-notice-overlay public-notice-overlay--service fixed inset-0 z-[90] flex items-center justify-center bg-[radial-gradient(circle_at_50%_15%,rgb(168_85_247/0.24),rgb(15_23_42/0.72)_48%,rgb(0_0_0/0.92))] px-4 backdrop-blur-md">
-          <div
-            dir="rtl"
-            className="public-notice-card public-notice-card--service ka-card-panel relative w-full max-w-[19.5rem] overflow-hidden rounded-[1.5rem] border border-cyan-200/20 text-right shadow-[0_30px_86px_-46px_rgb(124_58_237/0.95)] backdrop-blur-2xl"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="service-notice-title"
-            style={{ animation: 'page-fade-in 180ms ease-out both' }}
-          >
-            <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-[linear-gradient(90deg,transparent,#c084fc,#f472b6,#c084fc,transparent)]" />
-            <div className="pointer-events-none absolute -top-20 left-1/2 h-40 w-64 -translate-x-1/2 rounded-full bg-[color:rgb(124_58_237/0.2)] blur-3xl" />
-
-            <button
-              type="button"
-              onClick={handleCloseServiceNotice}
-              className="absolute left-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[color:rgb(var(--color-border-rgb)/0.65)] bg-[color:rgb(var(--color-card-rgb)/0.72)] text-[var(--color-text-secondary)] shadow-sm transition-all hover:rotate-90 hover:border-[color:rgb(var(--color-primary-rgb)/0.35)] hover:text-[var(--color-primary)]"
-              aria-label={isArabic ? 'إغلاق التنويه' : 'Close notice'}
-            >
-              <X className="h-4 w-4" />
+        <div className="public-notice-overlay km-notice-overlay">
+          <div className="km-notice" dir={isArabic ? 'rtl' : 'ltr'} role="dialog" aria-modal="true" aria-labelledby="service-notice-title">
+            <div className="km-notice__flag" aria-hidden="true" />
+            <button type="button" onClick={handleCloseServiceNotice} className="km-notice__close" aria-label={isArabic ? 'إغلاق التنويه' : 'Close notice'}>
+              <X size={19} />
             </button>
-
-            <div className="relative px-4 pb-4 pt-3.5">
-              <div dir="ltr" className="flex h-8 justify-center pl-7">
-                <HeaderBrand
-                  className="origin-top scale-[0.58] justify-center"
-                  iconClassName="scale-[0.72]"
-                  textClassName="text-center"
-                />
-              </div>
-
-              <div className="mb-3 mt-1 text-center">
-                <span className="mx-auto grid h-11 w-11 place-items-center rounded-2xl border border-amber-300/25 bg-[linear-gradient(145deg,rgb(251_191_36/0.2),rgb(244_114_182/0.1))] text-amber-400 shadow-[0_14px_34px_-22px_rgb(245_158_11/0.9)]">
-                  <CircleAlert className="h-5.5 w-5.5" strokeWidth={2.1} />
-                </span>
-                <h2 id="service-notice-title" className="mt-2.5 text-lg font-black text-[var(--color-text)]">
-                  تنبيه قبل الدفع
-                </h2>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex gap-2.5 rounded-2xl border border-amber-300/15 bg-[linear-gradient(135deg,rgb(245_158_11/0.1),rgb(var(--color-surface-rgb)/0.44))] p-3">
-                  <span className="public-notice-dot public-notice-dot--warning grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-400/15 text-amber-400">
-                    <CircleAlert className="h-3.5 w-3.5" />
-                  </span>
-                  <p className="public-notice-text text-[0.76rem] font-extrabold leading-5 text-[var(--color-text)]">
-                    المنتجات الرقمية لا تُسترد بعد تأكيد التحويل.
-                  </p>
-                </div>
-
-                <div className="flex gap-2.5 rounded-2xl border border-cyan-300/15 bg-[linear-gradient(135deg,rgb(124_58_237/0.1),rgb(var(--color-surface-rgb)/0.44))] p-3">
-                  <span className="public-notice-dot public-notice-dot--info grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-cyan-400/15 text-cyan-400">
-                    <Info className="h-3.5 w-3.5" />
-                  </span>
-                  <p className="public-notice-muted text-[0.75rem] font-bold leading-5 text-[var(--color-text-secondary)]">
-                    راجع تفاصيل طلبك جيدًا قبل الدفع.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleCloseServiceNotice}
-                className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-cyan-200/20 bg-[linear-gradient(135deg,#075a75,#9333ea_52%,#ec4899)] px-4 text-[0.82rem] font-black text-white shadow-[0_16px_36px_-22px_rgb(124_58_237/0.95)] transition-all hover:-translate-y-0.5 hover:brightness-110"
-              >
-                <Check className="h-4 w-4" strokeWidth={2.5} />
-                متابعة
-              </button>
+            <div className="km-notice__header">
+              <img src={platformBrand.logoUrl} alt={platformBrand.platformName} className="km-notice__logo" />
+              <h2 id="service-notice-title">{isArabic ? 'تنبيه قبل الدفع' : 'Before you pay'}</h2>
             </div>
+            <div className="km-notice__content">
+              <div className="km-notice__row">
+                <span className="km-notice__icon"><CircleAlert size={20} /></span>
+                <p>{isArabic ? 'المنتجات الرقمية لا تُسترد بعد تأكيد التحويل.' : 'Digital products cannot be refunded after the transfer is confirmed.'}</p>
+              </div>
+              <div className="km-notice__row">
+                <span className="km-notice__icon"><Info size={20} /></span>
+                <p>{isArabic ? 'راجع تفاصيل طلبك جيدًا قبل الدفع.' : 'Please check your order details carefully before paying.'}</p>
+              </div>
+            </div>
+            <button type="button" onClick={handleCloseServiceNotice} className="km-notice__primary">
+              {isArabic ? 'متابعة' : 'Continue'} <Check size={17} />
+            </button>
           </div>
         </div>
       )}
 
       {showWhatsAppNotice && (
-        <div className="public-notice-overlay public-notice-overlay--whatsapp fixed inset-0 z-[90] flex items-center justify-center bg-[radial-gradient(circle_at_top,rgb(37_211_102/0.18),rgb(124_58_237/0.24)_40%,rgb(0_0_0/0.88))] px-4 backdrop-blur-[4px]">
-          <div
-            dir="rtl"
-            className="public-notice-card public-notice-card--whatsapp ka-card-panel relative w-full max-w-[18.75rem] overflow-hidden rounded-[1.35rem] border border-emerald-300/20 text-right shadow-[0_26px_78px_-44px_rgb(37_211_102/0.88)] backdrop-blur-xl"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="whatsapp-notice-title"
-            style={{ animation: 'page-fade-in 180ms ease-out both' }}
-          >
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,#25d366,#087f9b,#f0cf7a,transparent)]" />
-            <div className="pointer-events-none absolute -top-16 left-1/2 h-24 w-44 -translate-x-1/2 rounded-full bg-[color:rgb(37_211_102/0.16)] blur-3xl" />
-
-            <button
-              type="button"
-              onClick={handleCloseWhatsAppNotice}
-              className="absolute left-2.5 top-2.5 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-300/20 bg-[color:rgb(var(--color-card-rgb)/0.78)] text-[var(--color-text-secondary)] transition-all hover:-translate-y-0.5 hover:text-emerald-300"
-              aria-label={isArabic ? 'إغلاق تنويه المجتمع' : 'Close community notice'}
-            >
-              <X className="h-4 w-4" />
+        <div className="public-notice-overlay km-notice-overlay">
+          <div className="km-notice" dir={isArabic ? 'rtl' : 'ltr'} role="dialog" aria-modal="true" aria-labelledby="whatsapp-notice-title">
+            <div className="km-notice__flag" aria-hidden="true" />
+            <button type="button" onClick={handleCloseWhatsAppNotice} className="km-notice__close" aria-label={isArabic ? 'إغلاق التنويه' : 'Close notice'}>
+              <X size={19} />
             </button>
-
-            <div className="relative px-4 pb-4 pt-4">
-              <div dir="ltr" className="mb-3 flex justify-center pl-8">
-                <HeaderBrand
-                  className="scale-[0.74] justify-center"
-                  iconClassName="scale-[0.82]"
-                  textClassName="text-center"
-                />
-              </div>
-
-              <div className="mb-3 flex items-center justify-center gap-2">
-                <span className="h-px flex-1 bg-[linear-gradient(90deg,transparent,rgb(37_211_102/0.55))]" />
-                <h2 id="whatsapp-notice-title" className="shrink-0 bg-[linear-gradient(120deg,#25d366,#087f9b,#f0cf7a)] bg-clip-text text-base font-black leading-6 text-transparent">
-                  تنويه المجتمع
-                </h2>
-                <span className="h-px flex-1 bg-[linear-gradient(90deg,rgb(124_58_237/0.55),transparent)]" />
-              </div>
-
-              <div className="public-notice-body space-y-2.5 rounded-[1rem] border border-emerald-300/20 bg-emerald-950/20 p-3">
-                <div className="flex gap-2.5">
-                  <span className="public-notice-dot public-notice-dot--success mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/20 text-emerald-300">
-                    <MessageCircle className="h-3.5 w-3.5" />
-                  </span>
-                  <p className="public-notice-text text-[0.78rem] font-extrabold leading-6 text-emerald-50">
-                    عدم متابعتك لمجتمع الواتساب مسؤوليتك الشخصية
-                  </p>
-                </div>
-
-                <div className="flex gap-2.5">
-                  <span className="public-notice-dot public-notice-dot--info mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 text-[0.62rem] font-black text-cyan-200">
-                    i
-                  </span>
-                  <p className="public-notice-muted text-[0.76rem] font-bold leading-6 text-cyan-50/80">
-                    واي اهمال في المتابعة تعرضك للمخاطر دون اي مسؤولية علينا
-                  </p>
-                </div>
-              </div>
-
-              <a
-                href={WHATSAPP_CHANNEL_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-emerald-300/30 bg-[linear-gradient(135deg,#128c7e,#25d366_58%,#087f9b)] px-4 text-sm font-black text-white shadow-[0_18px_38px_-24px_rgb(37_211_102/0.9)] transition-all hover:-translate-y-0.5 hover:brightness-105"
-              >
-                <MessageCircle className="h-4 w-4" />
-                مجتمع الواتساب
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-
-              <button
-                type="button"
-                onClick={handleCloseWhatsAppNotice}
-                className="public-notice-secondary-button mt-2 inline-flex h-10 w-full items-center justify-center rounded-full border border-cyan-200/25 bg-[color:rgb(var(--color-card-rgb)/0.72)] px-4 text-sm font-black text-cyan-50 shadow-[0_16px_34px_-26px_rgb(124_58_237/0.9)] transition-all hover:-translate-y-0.5 hover:border-emerald-300/30 hover:text-emerald-100"
-              >
-                موافق
-              </button>
+            <div className="km-notice__header">
+              <img src={platformBrand.logoUrl} alt={platformBrand.platformName} className="km-notice__logo" />
+              <h2 id="whatsapp-notice-title">{isArabic ? 'قناة واتساب الرسمية' : 'Official WhatsApp channel'}</h2>
             </div>
+            <div className="km-notice__content">
+              <div className="km-notice__row">
+                <span className="km-notice__icon"><MessageCircle size={20} /></span>
+                <p>{isArabic ? 'عدم متابعتك لقناة واتساب مسؤوليتك الشخصية.' : 'Following the WhatsApp channel is your responsibility.'}</p>
+              </div>
+              <div className="km-notice__row">
+                <span className="km-notice__icon"><Info size={20} /></span>
+                <p>{isArabic ? 'أي إهمال في المتابعة يعرضك للمخاطر دون أي مسؤولية علينا.' : 'Failure to follow updates may involve risks for which we are not responsible.'}</p>
+              </div>
+            </div>
+            <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="km-notice__primary">
+              <MessageCircle size={17} /> {isArabic ? 'تابع قناة واتساب' : 'Follow the WhatsApp channel'} <ExternalLink size={15} />
+            </a>
+            <button type="button" onClick={handleCloseWhatsAppNotice} className="km-notice__secondary">
+              {isArabic ? 'متابعة للموقع' : 'Continue to site'}
+            </button>
           </div>
         </div>
       )}

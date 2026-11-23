@@ -1,3 +1,5 @@
+export const WHATSAPP_CHANNEL_URL = 'https://whatsapp.com/channel/0029VbE2s6qFSAt6wMhmmW17';
+
 const defaultSupportContacts = [
   { id: 'customer-support-primary', name: 'خدمة العملاء', role: 'الرقم الأساسي', number: '+201125278141' },
   { id: 'customer-support-backup', name: 'خدمة العملاء', role: 'الرقم الاحتياطي', number: '+201142845003' },

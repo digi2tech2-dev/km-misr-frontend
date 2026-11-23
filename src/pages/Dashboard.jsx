@@ -14,6 +14,7 @@ import StorefrontQuickOffers from '../components/products/StorefrontQuickOffers'
 import WelcomeIntro from '../components/app/WelcomeIntro';
 import { usePlatformBrand } from '../context/ThemeContext';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { WHATSAPP_CHANNEL_URL } from '../utils/whatsapp';
 import slideOneHeroImage from '../assets/slide-1.webp';
 import slideTwoHeroImage from '../assets/slide-2.webp';
 import slideThreeHeroImage from '../assets/slide-3.webp';
@@ -64,11 +65,10 @@ const Dashboard = () => {
     };
   }, [loadProducts]);
 
-  const slideTwoUrl = 'https://chat.whatsapp.com/EhP71my5sGm2VXafTk12Qw';
   const heroSlides = useMemo(() => {
     const defaults = [
       { id: 'landing-slide-1', image: slideOneHeroImage, title: '' },
-      { id: 'landing-slide-2', image: slideTwoHeroImage, title: '', href: slideTwoUrl },
+      { id: 'landing-slide-2', image: slideTwoHeroImage, alt: 'قناة واتساب الرسمية', href: WHATSAPP_CHANNEL_URL },
       { id: 'landing-slide-3', image: slideThreeHeroImage, title: '', href: '/referral' },
       { id: 'landing-slide-4', image: slideFourHeroImage, title: '' },
       { id: 'landing-slide-5', image: slideFiveHeroImage, title: '' },
