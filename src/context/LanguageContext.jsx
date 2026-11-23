@@ -34,7 +34,7 @@ export const LanguageProvider = ({ children }) => {
   }, [language, setLanguage]);
 
   const applyPlatformName = useCallback((value) => (
-    typeof value === 'string' ? value.replace(/Clash Cash|Lool Store/gi, platformName) : value
+    typeof value === 'string' ? value.replace(/KM اولاد مصر|Lool Store/gi, platformName) : value
   ), [platformName]);
 
   const t = useCallback(

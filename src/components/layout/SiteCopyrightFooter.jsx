@@ -2,11 +2,13 @@ import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { StoreSocialLinks } from './SidebarSocialFooter';
 import { usePlatformBrand } from '../../context/ThemeContext';
-import { buildWhatsAppLink, getDefaultWhatsAppNumber } from '../../utils/whatsapp';
+import { buildWhatsAppLink } from '../../utils/whatsapp';
+import useCustomerSupportContacts from '../../hooks/useCustomerSupportContacts';
 
 const SiteCopyrightFooter = ({ isArabic, showEngineerContact = true, showSocialLinks = false }) => {
   const { platformName } = usePlatformBrand();
-  const contactUrl = buildWhatsAppLink({ number: getDefaultWhatsAppNumber() });
+  const [primaryContact] = useCustomerSupportContacts(showEngineerContact);
+  const contactUrl = buildWhatsAppLink({ number: primaryContact?.number });
   return (
   <footer className="mx-auto w-full max-w-[var(--shell-max-width)] px-3 pb-6 sm:px-4 md:px-6 lg:px-8">
     <div className="relative overflow-hidden rounded-[1.45rem] border border-[color:rgb(var(--color-border-rgb)/0.72)] bg-[linear-gradient(135deg,rgb(var(--color-card-rgb)/0.82),rgb(var(--color-elevated-rgb)/0.58))] px-4 py-4 text-center shadow-[var(--shadow-subtle)] backdrop-blur-xl">

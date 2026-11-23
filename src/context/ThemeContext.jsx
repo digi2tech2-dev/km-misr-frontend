@@ -2,7 +2,6 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import apiClient from '../services/client';
 import { applyPublishedPlatformTheme } from '../theme/platformTheme';
 import defaultBrandLogo from '../assets/logo 2.PNG';
-import { resolveImageUrl } from '../utils/imageUrl';
 
 const ThemeContext = createContext();
 const THEME_STORAGE_KEY = 'ka-card-theme';
@@ -23,13 +22,14 @@ export const useTheme = () => useContext(ThemeContext);
 export const usePlatformBrand = () => {
   const { publishedPlatformTheme } = useTheme();
   const brand = publishedPlatformTheme?.brand || {};
-  const configuredName = typeof brand.platformName === 'string' ? brand.platformName.trim() : '';
+  const rawConfiguredName = typeof brand.platformName === 'string' ? brand.platformName.trim() : '';
+  const configuredName = /^(?:Clash Cash|Lool Store)$/i.test(rawConfiguredName) ? 'KM اولاد مصر' : rawConfiguredName;
   const socialMedia = brand.socialMedia && typeof brand.socialMedia === 'object' ? brand.socialMedia : {};
-  const logoPath = typeof brand.logoPath === 'string' && brand.logoPath.trim() ? brand.logoPath.trim() : null;
+
   return {
-    platformName: configuredName || 'Clash Cash',
-    logoPath,
-    logoUrl: logoPath ? resolveImageUrl(logoPath) : defaultBrandLogo,
+    platformName: configuredName || 'KM اولاد مصر',
+    logoPath: null,
+    logoUrl: defaultBrandLogo,
     slides: Array.isArray(brand.slides) ? brand.slides : [],
     socialMedia: {
       phone: typeof socialMedia.phone === 'string' ? socialMedia.phone : '',
@@ -83,34 +83,12 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     const brand = publishedPlatformTheme?.brand || {};
-    const platformName = typeof brand.platformName === 'string' && brand.platformName.trim()
+    const rawPlatformName = typeof brand.platformName === 'string' && brand.platformName.trim()
       ? brand.platformName.trim()
-      : 'Clash Cash';
-    const logoPath = typeof brand.logoPath === 'string' && brand.logoPath.trim()
-      ? brand.logoPath.trim()
-      : '';
-    const logoUrl = logoPath ? resolveImageUrl(logoPath) : defaultBrandLogo;
-    const previousName = window.__platformBrandName || 'Clash Cash';
-    const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const replaceName = (value) => String(value || '')
-      .replace(new RegExp(escapeRegExp(previousName), 'gi'), platformName)
-      .replace(/Lool Store/gi, platformName);
-
-    document.title = replaceName(document.title);
-    window.__platformBrandName = platformName;
-    document.querySelectorAll('meta[name="application-name"]').forEach((meta) => meta.setAttribute('content', platformName));
-    document.querySelectorAll('meta[property="og:site_name"], meta[property="og:image:alt"], meta[name="twitter:image:alt"]').forEach((meta) => {
-      meta.setAttribute('content', replaceName(meta.getAttribute('content')) || platformName);
-    });
-    let icon = document.querySelector('link[rel="icon"]');
-    if (!icon) {
-      icon = document.createElement('link');
-      icon.rel = 'icon';
-      document.head.appendChild(icon);
-    }
-    icon.href = logoUrl;
+      : 'KM اولاد مصر';
+    const platformName = /^(?:Clash Cash|Lool Store)$/i.test(rawPlatformName) ? 'KM اولاد مصر' : rawPlatformName;
     document.querySelectorAll('.boot-loader__logo').forEach((image) => {
-      image.src = logoUrl;
+      image.src = defaultBrandLogo;
       image.alt = platformName;
     });
   }, [publishedPlatformTheme]);

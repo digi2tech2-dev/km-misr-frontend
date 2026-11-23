@@ -235,7 +235,7 @@ const sanitizeUser = (user) => {
     ...safeUser,
     twoFactorEnabled,
     isTwoFactorEnabled: twoFactorEnabled,
-    avatar: resolveUserAvatar(safeUser, safeUser.name || safeUser.email || 'Clash Cash User'),
+    avatar: resolveUserAvatar(safeUser, safeUser.name || safeUser.email || 'KM اولاد مصر User'),
     coins: walletSummary.walletBalance,
     walletBalance: walletSummary.walletBalance,
     balance: walletSummary.walletBalance,
@@ -1065,7 +1065,7 @@ const mockApi = {
         signupMethod: normalizeSignupMethod(userData.signupMethod || 'email'),
         approvedAt: null,
         rejectedAt: null,
-        avatar: resolveUserAvatar(userData, userData.name || userData.username || userData.email || 'Clash Cash User')
+        avatar: resolveUserAvatar(userData, userData.name || userData.username || userData.email || 'KM اولاد مصر User')
       };
       delete newUser.password;
       

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Menu,
   ChevronRight,
@@ -33,14 +33,13 @@ import ProductCardSimple from '../components/products/ProductCardSimple';
 import ProductPurchaseDialog from '../components/products/ProductPurchaseDialog';
 import LoadingSkeleton from '../components/products/LoadingSkeleton';
 import EmptyState from '../components/products/EmptyState';
-import Seo from '../components/seo/Seo';
 import { getDefaultRouteForRole } from '../utils/authRoles';
+import { getSearchSiteName, storefrontDescription } from '../utils/seo';
 import {
   createStorefrontCategories,
   createStorefrontProducts,
   getStorefrontLanguage,
 } from '../utils/storefront';
-import { buildStoreSeo, toAbsoluteUrl } from '../utils/seo';
 import { useBodyScrollLock } from '../utils/bodyScrollLock';
 import slideOneImage from '../assets/slide-1.webp';
 import slideTwoImage from '../assets/slide-2.webp';
@@ -136,7 +135,6 @@ const getProductCategoryKeys = (product) => {
 
 const PublicCatalog = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { i18n } = useTranslation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const userRole = useAuthStore((state) => state.user?.role);
@@ -538,21 +536,6 @@ const PublicCatalog = () => {
   const shouldMergeProductsWithSubcategories =
     isInsideCategory && currentCategories.length > 0;
 
-  const seoData = useMemo(
-    () => buildStoreSeo({
-      products: storefrontProducts,
-      categories: storefrontCategories,
-      language,
-      path: `${location.pathname}${location.search || ''}`,
-    }),
-    [language, location.pathname, location.search, storefrontCategories, storefrontProducts]
-  );
-
-  const seoImage = useMemo(
-    () => toAbsoluteUrl(storefrontProducts.find((product) => product?.image)?.image || '/android-chrome-192x192.png?v=ka-card'),
-    [storefrontProducts]
-  );
-
   const selectedCategoryExists = useMemo(
     () => !currentParentId || storefrontCategories.some((category) => category.id === currentParentId),
     [currentParentId, storefrontCategories]
@@ -612,16 +595,6 @@ const PublicCatalog = () => {
 
   return (
     <div className="min-h-screen pb-5 pt-[4.75rem]">
-      <Seo
-        title={seoData.title}
-        description={seoData.description}
-        keywords={seoData.keywords}
-        canonicalUrl={seoData.canonicalUrl}
-        image={seoImage}
-        language={language}
-        jsonLd={seoData.jsonLd}
-      />
-
       {typeof document !== 'undefined' && createPortal(
       <header className="pointer-events-none fixed inset-x-0 top-0 z-[90]">
         <div className="w-full">
@@ -838,6 +811,15 @@ const PublicCatalog = () => {
             <HeroSlider slides={heroSlides} />
           </section>
 
+          <div className="mx-auto max-w-2xl text-center">
+            <h1 className="text-xl font-black text-[var(--color-text)] sm:text-2xl">
+              {getSearchSiteName(platformBrand.platformName)}
+            </h1>
+            <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+              {storefrontDescription[language]}
+            </p>
+          </div>
+
           <section id="categories" className="scroll-mt-28 space-y-3 sm:space-y-3.5">
             <div className="relative z-10 mx-auto flex w-full max-w-5xl justify-center px-0.5 sm:px-2">
               <ProductSearchBar
@@ -1006,6 +988,11 @@ const PublicCatalog = () => {
         onRequireAuth={handleLogin}
       />
 
+      <div className="mb-3 text-center">
+        <Link to="/about-us" className="text-sm text-[var(--color-text-secondary)] underline underline-offset-4">
+          {isArabic ? 'من نحن' : 'About us'}
+        </Link>
+      </div>
       <SiteCopyrightFooter isArabic={isArabic} showSocialLinks />
     </div>
   );

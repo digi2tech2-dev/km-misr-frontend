@@ -11,7 +11,7 @@ import { getThemeChrome, platformThemeStyles } from '../../theme/platformTheme';
 import { resolveImageUrl } from '../../utils/imageUrl';
 import useAuthStore from '../../store/useAuthStore';
 import useSystemStore from '../../store/useSystemStore';
-import { resolveSupportContacts } from '../../utils/whatsapp';
+import { getCustomerSupportContacts, getSupportContactLabel, normalizeSupportContactNumber } from '../../utils/whatsapp';
 import PlatformStudioPreview from './PlatformStudioPreview';
 import MaintenanceControl from '../../components/app/MaintenanceControl';
 import './PlatformThemeEditor.css';
@@ -30,15 +30,15 @@ const freeFonts = { arabic: ['Cairo', 'Tajawal'], english: ['Inter', 'Arial'] };
 const fonts = { arabic: [...freeFonts.arabic, 'Noto Sans Arabic', 'Almarai', 'Changa', 'IBM Plex Sans Arabic', 'Rubik', 'Aref Ruqaa', 'Aref Ruqaa Ink', 'Noto Kufi Arabic', 'El Messiri'],
   english: [...freeFonts.english, 'Roboto', 'Poppins', 'Montserrat', 'Outfit', 'Plus Jakarta Sans'] };
 const sampleColors = {
-  light: { primary: '#A97812', secondary: '#806020', accent: '#C28D1C', background: '#FFFCF4', surface: '#FFF7E3', text: '#2B2414', mutedText: '#665A3C', border: '#EAD8A8' },
-  dark: { primary: '#E2B638', secondary: '#C49A3A', accent: '#F0CB60', background: '#15120A', surface: '#211B0D', text: '#FFF9E8', mutedText: '#DFD2A9', border: '#65532A' },
+  light: { primary: '#C8102E', secondary: '#D9A11E', accent: '#B98A21', background: '#FFFCFA', surface: '#FFF4EF', text: '#241515', mutedText: '#5C4540', border: '#E8C7C2' },
+  dark: { primary: '#EFB72F', secondary: '#D9A11E', accent: '#FFD25C', background: '#100B0C', surface: '#241014', text: '#FFF8F2', mutedText: '#E2C9C0', border: '#6B3237' },
 };
 const sampleChromePart = (mode) => ({ template: 'bar', height: 64, width: 100,
-  background: mode === 'dark' ? '#211B0D' : '#FFF7E3',
-  foreground: mode === 'dark' ? '#FFF9E8' : '#2B2414',
+  background: mode === 'dark' ? '#241014' : '#FFF4EF',
+  foreground: mode === 'dark' ? '#FFF8F2' : '#241515',
   accent: sampleColors[mode].primary, radius: 0 });
 const sampleChromeModes = Object.fromEntries(['light', 'dark'].map((mode) => [mode, {
-  header: sampleChromePart(mode), bottomNav: { ...sampleChromePart(mode), background: mode === 'dark' ? '#15120A' : '#FFF7E3' },
+  header: sampleChromePart(mode), bottomNav: { ...sampleChromePart(mode), background: mode === 'dark' ? '#100B0C' : '#FFF4EF' },
 }]));
 const sampleChrome = { header: sampleChromeModes.light.header, bottomNav: sampleChromeModes.light.bottomNav, modes: sampleChromeModes };
 const samplePart = (mode) => ({ presetId: 'warm', colors: { ...sampleColors[mode] },
@@ -46,7 +46,7 @@ const samplePart = (mode) => ({ presetId: 'warm', colors: { ...sampleColors[mode
   buttons: { radius: 8, style: 'solid' }, cards: { radius: 12, shadow: 'subtle' }, navigation: { style: 'standard' }, neon: sampleNeon() });
 const DEFAULT_MARQUEE_AR = 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ إِنَّ رَبِّي يَبْسُطُ الرِّزْقَ لِمَنْ يَشَاءُ مِنْ عِبَادِهِ وَيَقْدِرُ لَهُ وَمَا أَنْفَقْتُمْ مِنْ شَيْءٍ فَهُوَ يُخْلِفُهُ وَهُوَ خَيْرُ الرَّازِقِينَ﴾ صَدَقَ اللَّهُ الْعَظِيمُ';
 const sampleTheme = { schemaVersion: 2, modes: { light: samplePart('light'), dark: samplePart('dark') },
-  brand: { platformName: 'Clash Cash', logoPath: null, logoWidth: 144, slides: [null, null, null, null, null], marqueeTextArabic: DEFAULT_MARQUEE_AR, targetBannerPath: null, socialMedia: { phone: '', whatsapp: '', instagram: '', facebook: '' }, sidebarTemplate: 'default', sidebarMetrics: { width: 270, height: 100, radius: 28 } },
+  brand: { platformName: 'KM اولاد مصر', logoPath: null, logoWidth: 144, slides: [null, null, null, null, null], marqueeTextArabic: DEFAULT_MARQUEE_AR, targetBannerPath: null, socialMedia: { phone: '', whatsapp: '', instagram: '', facebook: '' }, sidebarTemplate: 'default', sidebarMetrics: { width: 270, height: 100, radius: 28 } },
   chrome: sampleChrome };
 const headerLooks = [
   { name: 'Midnight edge', ar: 'مستطيل منتصف الليل', config: { template: 'bar', height: 64, width: 100, background: '#111827', foreground: '#F8FAFC', accent: '#38BDF8', radius: 0 } },
@@ -477,7 +477,7 @@ const copy = {
     appearanceColors: 'الألوان والثيمات', appearanceInterface: 'الخطوط والواجهة', appearanceBrand: 'الهوية والصور',
     ownerWhatsApp: 'واتساب صاحب الموقع', serverWhatsApp: 'رقم واتساب إشعارات السيرفر', supportWhatsApp: 'واتساب خدمة العملاء',
     contactsHint: 'تظهر أرقام التواصل العامة في نافذة تواصل معنا وصفحة من نحن وقسم مشاكل الحساب. رقم إشعارات السيرفر مخصص للإدارة فقط ولا يظهر للعملاء. تغيير أرقام واتساب متاح مجانًا.', serverWhatsAppHint: 'أدخل الأرقام بصيغة دولية مع رمز + ومفتاح الدولة، مثال: +201012345678.',
-    phoneFormatHint: 'اكتب الرقم مع + ومفتاح الدولة، مثال: +201012345678.', phoneValidation: 'أدخل رقمًا دوليًا صحيحًا يبدأ بـ + ومفتاح الدولة.', contactsLockedTitle: 'إدارة أرقام واتساب متاحة مجانًا.', contactsSubscriptionCta: 'شاهد الخطط والمميزات وطرق الدفع والتفعيل',
+    phoneFormatHint: 'اكتب رقم موبايل مصري مثل 01123456789، أو رقمًا دوليًا مثل +201123456789.', phoneValidation: 'أدخل رقمًا دوليًا صحيحًا يبدأ بـ + ومفتاح الدولة.', contactsLockedTitle: 'إدارة أرقام واتساب متاحة مجانًا.', contactsSubscriptionCta: 'شاهد الخطط والمميزات وطرق الدفع والتفعيل',
     ultraContactsOnly: 'تغيير أرقام واتساب متاح مجانًا.', subscriptionLink: 'شاهد الخطط والمميزات وطرق الدفع والتفعيل', saveContacts: 'حفظ أرقام التواصل', saving: 'جارٍ الحفظ...', contactsSaved: 'تم حفظ أرقام واتساب التواصل.', contactsSaveFailed: 'تعذر حفظ أرقام واتساب.',
     previewNotice: 'هذه معاينة للتصميم فقط. لإنشاء طلب تحويل حقيقي، افتح صفحة الأدمن بعد تشغيل الباك إند.',
     previewOrderHint: 'لا يمكن إنشاء رقم طلب أو إرسال تحويل من المعاينة. افتح صفحة الأدمن لإنشاء طلب مسجل أولًا.',
@@ -532,7 +532,7 @@ const copy = {
     appearanceColors: 'Colors and presets', appearanceInterface: 'Fonts and layout', appearanceBrand: 'Brand and images',
     ownerWhatsApp: 'Site owner WhatsApp', serverWhatsApp: 'Server notification WhatsApp', supportWhatsApp: 'Customer support WhatsApp',
     contactsHint: 'Public contact numbers appear in Contact Us, About Us, and Account Problems. The server notification number is private to administration and never shown to customers. WhatsApp number editing is free.', serverWhatsAppHint: 'Enter an international number with + and country code, for example +201012345678.',
-    phoneFormatHint: 'Use + and a country code, for example +201012345678.', phoneValidation: 'Enter a valid international number starting with + and the country code.', contactsLockedTitle: 'WhatsApp contact management is free.', contactsSubscriptionCta: 'View plans, features, payment and activation',
+    phoneFormatHint: 'Enter an Egyptian mobile number such as 01123456789, or an international number such as +201123456789.', phoneValidation: 'Enter a valid international number starting with + and the country code.', contactsLockedTitle: 'WhatsApp contact management is free.', contactsSubscriptionCta: 'View plans, features, payment and activation',
     ultraContactsOnly: 'Editing WhatsApp numbers is free.', subscriptionLink: 'View plans, features, payment and activation', saveContacts: 'Save contact numbers', saving: 'Saving...', contactsSaved: 'WhatsApp contact numbers saved.', contactsSaveFailed: 'Could not save WhatsApp numbers.',
     previewNotice: 'This is a design preview. Open the admin page with a running backend to create a real transfer order.',
     previewOrderHint: 'The preview cannot issue an order reference or record a transfer. Open the admin page to create a recorded order first.',
@@ -704,7 +704,11 @@ export default function PlatformThemeEditor({ previewOnly = false }) {
   }, [previewOnly, loadPaymentSettings]);
   useEffect(() => {
     if (contactsDirty.current) return;
-    setSupportContacts({ entries: resolveSupportContacts(paymentSettings?.supportContacts, language === 'ar').map((item) => ({ ...item })), revision: Number(paymentSettings?.supportContacts?.revision || 0) });
+    const savedContacts = paymentSettings?.supportContacts;
+    setSupportContacts({
+      entries: getCustomerSupportContacts(savedContacts).map((contact) => ({ ...contact })),
+      revision: Number(savedContacts?.revision || 0),
+    });
     setAdminNotificationWhatsApp(String(paymentSettings?.adminNotificationWhatsApp || '').trim());
     setContactsErrors({});
   }, [paymentSettings]);
@@ -834,6 +838,21 @@ export default function PlatformThemeEditor({ previewOnly = false }) {
     } catch (cause) { addToast(cause?.response ? errorText(cause, t) : (cause?.message || t.failed), 'error'); }
     finally { setBusy(false); }
   };
+  const editSupportContacts = (update) => {
+    contactsDirty.current = true;
+    setSupportContacts((current) => ({ ...current, entries: update(current.entries) }));
+    setContactsErrors((current) => ({ ...current, entries: '' }));
+  };
+
+  const moveSupportContact = (id, toIndex) => {
+    editSupportContacts((entries) => {
+      const contact = entries.find((entry) => entry.id === id);
+      const remaining = entries.filter((entry) => entry.id !== id);
+      remaining.splice(toIndex, 0, contact);
+      return remaining;
+    });
+  };
+
   const saveContacts = async () => {
     if (!ultra || previewOnly || contactsSaveInFlight.current) return;
     if (!paymentSettings?.supportContacts) {
@@ -841,14 +860,24 @@ export default function PlatformThemeEditor({ previewOnly = false }) {
       return;
     }
     const validPhone = (value) => /^\+[1-9]\d{7,14}$/.test(String(value || '').trim().replace(/[٠-٩۰-۹]/g, (digit) => String(digit.charCodeAt(0) & 15)).replace(/[\s()-]/g, ''));
-    const nextErrors = { entries: supportContacts.entries.some((contact) => !String(contact.name || '').trim() || !String(contact.role || '').trim() || !validPhone(contact.number)) ? (language === 'ar' ? 'أدخل الاسم والوظيفة ورقمًا صحيحًا بكود الدولة لكل جهة.' : 'Enter a name, role and international number for each contact.') : '', notification: !String(adminNotificationWhatsApp || '').trim() || validPhone(adminNotificationWhatsApp) ? '' : t.phoneValidation };
+    const normalizedEntries = supportContacts.entries.map((entry, index) => ({
+      id: entry.id,
+      name: String(entry.name || '').trim() || (language === 'ar' ? 'خدمة العملاء' : 'Customer support'),
+      role: String(entry.role || '').trim() || getSupportContactLabel(entry, index, language === 'ar'),
+      number: normalizeSupportContactNumber(entry.number),
+    }));
+    const nextErrors = {
+      entries: normalizedEntries.some((entry) => !entry.number)
+        ? (language === 'ar' ? 'أدخل رقم واتساب صحيحًا لكل جهة تواصل.' : 'Enter a valid WhatsApp number for each contact.')
+        : '',
+      notification: !String(adminNotificationWhatsApp || '').trim() || validPhone(adminNotificationWhatsApp) ? '' : t.phoneValidation,
+    };
     contactsDirty.current = true;
     setContactsErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) return;
     contactsSaveInFlight.current = true;
     setSavingContacts(true);
     try {
-      const normalizedEntries = supportContacts.entries.map((entry) => ({ ...entry, name: entry.name.trim(), role: entry.role.trim(), number: entry.number.trim().replace(/[٠-٩۰-۹]/g, (digit) => String(digit.charCodeAt(0) & 15)).replace(/[\s()-]/g, '') }));
       const saved = await savePaymentSettings({ supportContacts: { entries: normalizedEntries, revision: supportContacts.revision } }, user);
       setSupportContacts({ entries: saved.supportContacts.entries || [], revision: saved.supportContacts.revision });
       if (adminNotificationWhatsApp.trim() !== String(paymentSettings?.adminNotificationWhatsApp || '').trim()) {
@@ -982,7 +1011,7 @@ export default function PlatformThemeEditor({ previewOnly = false }) {
         </Section>}
         </>}
         {(previewOnly || ['branding', 'sidebar'].includes(activePage)) && <>
-        {['branding', 'preview'].includes(activePage) || previewOnly ? <Section icon={ImagePlus} title={t.branding} locked={!paid}><p className="mb-3 text-xs text-[var(--color-text-secondary)]">{t.imageHint}</p><label className="mb-4 block text-sm font-semibold">{t.platformName}<input type="text" maxLength={60} value={draft.brand.platformName || 'Clash Cash'} onChange={(event) => updateBrand({ platformName: event.target.value })} disabled={busy} className="mt-2 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-text)]" /></label><div className="grid gap-4 sm:grid-cols-2"><div className="rounded-xl border border-[var(--color-border)] p-3"><p className="mb-2 text-sm font-bold">{t.logo}</p>{draft.brand.logoPath && <div className="mb-2 flex h-28 items-center overflow-auto rounded-lg bg-[var(--color-surface)] p-2"><ThemeImagePreview src={resolveImageUrl(draft.brand.logoPath)} fallback={t.logo} className="max-h-full shrink-0 object-contain" style={{ width: draft.brand.logoWidth }} /></div>}<label className={button}>{t.upload}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={!paid || busy} onChange={(event) => { upload(event.target.files?.[0]); event.target.value = ''; }} /></label>{draft.brand.logoPath && <button type="button" className={`${button} ms-2`} disabled={!paid} onClick={() => updateBrand({ logoPath: null })}>{t.remove}</button>}<label className="mt-3 block text-xs">{t.logoWidth}: {draft.brand.logoWidth}px<input type="range" min="80" max="300" step="4" className="mt-2 w-full" disabled={!paid} value={draft.brand.logoWidth} onChange={(event) => updateBrand({ logoWidth: Number(event.target.value) })} /></label></div><div className="rounded-xl border border-[var(--color-border)] p-3"><p className="mb-2 text-sm font-bold">{t.slides}</p><div className="grid grid-cols-2 gap-2">{draft.brand.slides.map((path, index) => <div key={index} className="rounded-lg border border-[var(--color-border)] p-2 text-center text-xs"><div className="mb-2 flex aspect-video items-center justify-center overflow-hidden bg-[var(--color-surface)]">{path ? <ThemeImagePreview src={resolveImageUrl(path)} fallback={t.failed} className="h-full w-full object-cover" /> : `${index + 1}`}</div><label className={button}>{t.upload}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={!paid || busy} onChange={(event) => { upload(event.target.files?.[0], index); event.target.value = ''; }} /></label>{path && <button type="button" className="mt-1 block w-full text-rose-500" disabled={!paid} onClick={() => updateBrand({ slides: draft.brand.slides.map((old, slot) => slot === index ? null : old) })}>{t.remove}</button>}</div>)}</div></div></div></Section> : null}
+        {['branding', 'preview'].includes(activePage) || previewOnly ? <Section icon={ImagePlus} title={t.branding} locked={!paid}><p className="mb-3 text-xs text-[var(--color-text-secondary)]">{t.imageHint}</p><label className="mb-4 block text-sm font-semibold">{t.platformName}<input type="text" maxLength={60} value={draft.brand.platformName || 'KM اولاد مصر'} onChange={(event) => updateBrand({ platformName: event.target.value })} disabled={busy} className="mt-2 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-text)]" /></label><div className="grid gap-4 sm:grid-cols-2"><div className="rounded-xl border border-[var(--color-border)] p-3"><p className="mb-2 text-sm font-bold">{t.logo}</p>{draft.brand.logoPath && <div className="mb-2 flex h-28 items-center overflow-auto rounded-lg bg-[var(--color-surface)] p-2"><ThemeImagePreview src={resolveImageUrl(draft.brand.logoPath)} fallback={t.logo} className="max-h-full shrink-0 object-contain" style={{ width: draft.brand.logoWidth }} /></div>}<label className={button}>{t.upload}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={!paid || busy} onChange={(event) => { upload(event.target.files?.[0]); event.target.value = ''; }} /></label>{draft.brand.logoPath && <button type="button" className={`${button} ms-2`} disabled={!paid} onClick={() => updateBrand({ logoPath: null })}>{t.remove}</button>}<label className="mt-3 block text-xs">{t.logoWidth}: {draft.brand.logoWidth}px<input type="range" min="80" max="300" step="4" className="mt-2 w-full" disabled={!paid} value={draft.brand.logoWidth} onChange={(event) => updateBrand({ logoWidth: Number(event.target.value) })} /></label></div><div className="rounded-xl border border-[var(--color-border)] p-3"><p className="mb-2 text-sm font-bold">{t.slides}</p><div className="grid grid-cols-2 gap-2">{draft.brand.slides.map((path, index) => <div key={index} className="rounded-lg border border-[var(--color-border)] p-2 text-center text-xs"><div className="mb-2 flex aspect-video items-center justify-center overflow-hidden bg-[var(--color-surface)]">{path ? <ThemeImagePreview src={resolveImageUrl(path)} fallback={t.failed} className="h-full w-full object-cover" /> : `${index + 1}`}</div><label className={button}>{t.upload}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={!paid || busy} onChange={(event) => { upload(event.target.files?.[0], index); event.target.value = ''; }} /></label>{path && <button type="button" className="mt-1 block w-full text-rose-500" disabled={!paid} onClick={() => updateBrand({ slides: draft.brand.slides.map((old, slot) => slot === index ? null : old) })}>{t.remove}</button>}</div>)}</div></div></div></Section> : null}
         {['branding', 'preview'].includes(activePage) || previewOnly ? <Section icon={MessageCircle} title={t.socialMedia}>
           <p className="mb-3 text-xs text-[var(--color-text-secondary)]">{t.socialLinksHint}</p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -1042,17 +1071,94 @@ export default function PlatformThemeEditor({ previewOnly = false }) {
             <div className="flex items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-400/15 text-amber-500"><LockKeyhole className="h-5 w-5" /></span><div><h3 className="mt-2 font-black text-[var(--color-text)]">{t.contactsLockedTitle}</h3><p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{t.contactsHint}</p></div></div>
             <Link to="/admin/themes#theme-subscription" className={`${button} mt-5 w-full justify-center border-amber-400/50 bg-gradient-to-r from-amber-400 to-yellow-300 text-amber-950 sm:w-auto`}><Sparkles className="h-4 w-4" />{t.contactsSubscriptionCta}<ArrowUpRight className="h-4 w-4" /></Link>
           </div> : <>
-            <div className="mb-4 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600"><MessageCircle className="h-4 w-4" /></span><div><h3 className="font-black text-[var(--color-text)]">{language === 'ar' ? 'أرقام التواصل العامة' : 'Public contact numbers'}</h3><p className="text-xs text-[var(--color-text-secondary)]">{language === 'ar' ? 'تظهر هذه الأرقام للعملاء في صفحات التواصل والدعم.' : 'Customers see these numbers on contact and support pages.'}</p></div></div>
-            <div className="space-y-3">{supportContacts.entries.map((contact, index) => <div key={contact.id} className="rounded-2xl border border-[var(--color-border)] p-3"><div className="mb-2 flex items-center justify-between gap-2"><strong>{language === 'ar' ? `جهة ${index + 1}` : `Contact ${index + 1}`}</strong><button type="button" className={button} disabled={savingContacts || index === 0} onClick={() => { contactsDirty.current = true; setSupportContacts((current) => ({ ...current, entries: [contact, ...current.entries.filter((item) => item.id !== contact.id)] })); }}>{index === 0 ? (language === 'ar' ? 'الرقم الأساسي' : 'Primary') : (language === 'ar' ? 'تعيين كأساسي' : 'Set primary')}</button><button type="button" className={`${button} text-rose-600`} disabled={savingContacts} onClick={() => { contactsDirty.current = true; setSupportContacts((current) => ({ ...current, entries: current.entries.filter((item) => item.id !== contact.id) })); }}>{language === 'ar' ? 'حذف' : 'Delete'}</button></div><div className="grid gap-3 sm:grid-cols-3">{[['name', language === 'ar' ? 'الاسم' : 'Name'], ['role', language === 'ar' ? 'الوظيفة' : 'Role'], ['number', language === 'ar' ? 'رقم واتساب' : 'WhatsApp number']].map(([key, label]) => <label key={key} className="text-sm font-bold">{label}<input className={`${input} mt-1`} dir={key === 'number' ? 'ltr' : undefined} inputMode={key === 'number' ? 'tel' : undefined} placeholder={key === 'number' ? '+201012345678' : label} value={contact[key]} maxLength={key === 'number' ? 25 : 80} disabled={savingContacts} onChange={(event) => { contactsDirty.current = true; const value = event.target.value; setSupportContacts((current) => ({ ...current, entries: current.entries.map((item) => item.id === contact.id ? { ...item, [key]: value } : item) })); }} /></label>)}</div></div>)}</div>
-            <button type="button" className={`${button} mt-3 w-full sm:w-auto`} disabled={savingContacts || supportContacts.entries.length >= 30} onClick={() => { contactsDirty.current = true; setSupportContacts((current) => ({ ...current, entries: [...current.entries, { id: crypto.randomUUID(), name: '', role: '', number: '' }] })); }}>{language === 'ar' ? 'إضافة جهة تواصل' : 'Add contact'}</button>
-            <button type="button" className={`${button} mt-3 w-full sm:ms-2 sm:w-auto`} disabled={savingContacts} onClick={async () => { contactsDirty.current = false; await loadPaymentSettings({ force: true }); }}>{language === 'ar' ? 'إعادة تحميل الجهات المحفوظة' : 'Reload saved contacts'}</button>
+            <div className="mb-4">
+              <h3 className="font-black text-[var(--color-text)]">{language === 'ar' ? 'أرقام التواصل العامة' : 'Public contact numbers'}</h3>
+              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                {language === 'ar' ? 'الرقم الأول أساسي، والثاني احتياطي. بعد الحفظ تظهر الأرقام للعملاء بنفس الترتيب.' : 'The first number is primary and the second is backup. Customers see the saved list in this order.'}
+              </p>
+            </div>
+            {paymentSettings?.supportContacts && !supportContacts.entries.length && (
+              <p className="mb-3 text-sm text-[var(--color-text-secondary)]">
+                {language === 'ar' ? 'القائمة فارغة. أضف رقم واتساب لعرضه للعملاء.' : 'The list is empty. Add a WhatsApp number to show it to customers.'}
+              </p>
+            )}
+            <fieldset disabled={savingContacts || !paymentSettings?.supportContacts} className="space-y-3">
+              {supportContacts.entries.map((contact, index) => (
+                <div key={contact.id} className="rounded-2xl border border-[var(--color-border)] p-3">
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <strong>
+                      {index < 2 ? getSupportContactLabel(contact, index, language === 'ar')
+                        : (language === 'ar' ? `رقم إضافي ${index - 1}` : `Additional number ${index - 1}`)}
+                    </strong>
+                    <div className="flex flex-wrap gap-2">
+                      {index !== 0 && (
+                        <button type="button" className={button} onClick={() => moveSupportContact(contact.id, 0)}>
+                          {language === 'ar' ? 'تعيين كأساسي' : 'Set as primary'}
+                        </button>
+                      )}
+                      {index !== 1 && supportContacts.entries.length > 1 && (
+                        <button type="button" className={button} onClick={() => moveSupportContact(contact.id, 1)}>
+                          {language === 'ar' ? 'تعيين كاحتياطي' : 'Set as backup'}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className={`${button} text-rose-600`}
+                        onClick={() => editSupportContacts((entries) => entries.filter((entry) => entry.id !== contact.id))}
+                      >
+                        {language === 'ar' ? 'حذف الرقم' : 'Remove number'}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {[
+                      ['number', language === 'ar' ? 'رقم واتساب' : 'WhatsApp number'],
+                      ['name', language === 'ar' ? 'الاسم (اختياري)' : 'Name (optional)'],
+                      ['role', language === 'ar' ? 'الوظيفة (اختياري)' : 'Role (optional)'],
+                    ].map(([key, label]) => (
+                      <label key={key} className="text-sm font-bold">
+                        {label}
+                        <input
+                          className={`${input} mt-1`}
+                          type={key === 'number' ? 'tel' : 'text'}
+                          dir={key === 'number' ? 'ltr' : undefined}
+                          placeholder={key === 'number' ? '01123456789' : undefined}
+                          value={contact[key] ?? ''}
+                          maxLength={key === 'number' ? 25 : 80}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            editSupportContacts((entries) => entries.map((entry) => (
+                              entry.id === contact.id ? { ...entry, [key]: value } : entry
+                            )));
+                          }}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                className={button}
+                disabled={supportContacts.entries.length >= 30}
+                onClick={() => editSupportContacts((entries) => [
+                  ...entries,
+                  { id: crypto.randomUUID(), name: '', role: '', number: '' },
+                ])}
+              >
+                {language === 'ar' ? 'إضافة رقم واتساب' : 'Add WhatsApp number'}
+              </button>
+            </fieldset>
+            <button type="button" className={`${button} mt-3`} disabled={savingContacts} onClick={async () => { contactsDirty.current = false; await loadPaymentSettings({ force: true }); }}>
+              {language === 'ar' ? 'إعادة تحميل الأرقام المحفوظة' : 'Reload saved numbers'}
+            </button>
             {contactsErrors.entries && <p role="alert" className="mt-2 text-sm text-rose-600">{contactsErrors.entries}</p>}
             <p id="theme-phone-format" className="mt-2 text-xs text-[var(--color-text-secondary)]">{t.phoneFormatHint}</p>
             <div className="my-5 border-t border-[var(--color-border)]" />
             <div className="mb-3 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-sky-500/10 text-sky-600"><LockKeyhole className="h-4 w-4" /></span><div><h3 className="font-black text-[var(--color-text)]">{t.serverWhatsApp}</h3><p className="text-xs text-[var(--color-text-secondary)]">{t.serverWhatsAppHint}</p></div><span className="ms-auto rounded-full border border-sky-500/25 px-2.5 py-1 text-[0.68rem] font-bold text-sky-600">{language === 'ar' ? 'خاص بالإدارة' : 'Private'}</span></div>
             <label className="block text-sm font-bold">{t.serverWhatsApp}<input className={`${input} mt-1`} dir="ltr" inputMode="tel" autoComplete="tel" placeholder="+201012345678" aria-invalid={Boolean(contactsErrors.notification)} aria-describedby={contactsErrors.notification ? 'theme-notification-phone-error' : 'theme-phone-format'} value={adminNotificationWhatsApp} disabled={savingContacts} onChange={(event) => { contactsDirty.current = true; setAdminNotificationWhatsApp(event.target.value); setContactsErrors((current) => ({ ...current, notification: '' })); }} />{contactsErrors.notification && <span id="theme-notification-phone-error" className="mt-1 block text-xs font-semibold text-rose-600" role="alert">{contactsErrors.notification}</span>}</label>
             <p className="mt-4 text-xs leading-5 text-[var(--color-text-secondary)]">{t.contactsHint}</p>
-            <button type="button" className={`${button} mt-4 w-full border-[var(--color-primary)] bg-[var(--color-primary)] text-white sm:w-auto`} disabled={savingContacts} onClick={saveContacts}>{savingContacts ? t.saving : t.saveContacts}</button>
+            <button type="button" className={`${button} mt-4 w-full border-[var(--color-primary)] bg-[var(--color-primary)] text-white sm:w-auto`} disabled={savingContacts || !paymentSettings?.supportContacts} onClick={saveContacts}>{savingContacts ? t.saving : t.saveContacts}</button>
           </>}
         </Section></div>}
       </div>

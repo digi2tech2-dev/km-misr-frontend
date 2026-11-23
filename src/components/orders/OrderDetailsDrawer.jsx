@@ -32,7 +32,8 @@ import {
 } from '../../utils/orders';
 import { resolveUserAvatar } from '../../utils/avatar';
 import { resolveImageUrl } from '../../utils/imageUrl';
-import { buildWhatsAppLink, getAdminWhatsAppNumber } from '../../utils/whatsapp';
+import { buildWhatsAppLink } from '../../utils/whatsapp';
+import useCustomerSupportContacts from '../../hooks/useCustomerSupportContacts';
 import { useBodyScrollLock } from '../../utils/bodyScrollLock';
 
 const DetailTile = ({ label, value, valueNode = null, hint = '', onClick, copyable = false, copyTone = 'primary', icon: Icon = ClipboardList }) => {
@@ -163,6 +164,7 @@ const OrderDetailsDrawer = ({
   const [complaintText, setComplaintText] = useState('');
   const [complaintError, setComplaintError] = useState('');
   const isDrawerVisible = Boolean(isOpen && order);
+  const [primaryContact] = useCustomerSupportContacts(isDrawerVisible && view === 'customer');
   const primaryIdentifierField = order?.primaryIdentifierField || null;
   const rawRequestFields = Array.isArray(order?.requestDetails?.fields) ? order.requestDetails.fields : [];
   const requestFields = rawRequestFields.filter((field) => {
@@ -186,7 +188,7 @@ const OrderDetailsDrawer = ({
     : null;
   const customerName = order?.customerName || order?.userName || order?.userRecord?.name || '';
   const customerEmail = order?.customerEmail || order?.userEmail || order?.userRecord?.email || '';
-  const customerAvatar = resolveUserAvatar(order?.customerAvatar || order?.userRecord?.avatar, customerName || customerEmail || 'Clash Cash User');
+  const customerAvatar = resolveUserAvatar(order?.customerAvatar || order?.userRecord?.avatar, customerName || customerEmail || 'KM اولاد مصر User');
   const customerSiteId = order?.userId || order?.userRecord?.id || order?.userRecord?._id || '';
   const copyToClipboard = async (value) => {
     const text = String(value || '').trim();
@@ -286,7 +288,7 @@ const OrderDetailsDrawer = ({
       ].join('\n');
 
     const href = buildWhatsAppLink({
-      number: getAdminWhatsAppNumber(),
+      number: primaryContact?.number,
       message,
     });
 
@@ -495,7 +497,7 @@ const OrderDetailsDrawer = ({
                       </div>
                     </section>
 
-                    {view === 'customer' ? (
+                    {view === 'customer' && primaryContact ? (
                       <section className="rounded-[1.35rem] border border-[color:rgb(var(--color-primary-rgb)/0.24)] bg-[linear-gradient(145deg,rgb(var(--color-primary-rgb)/0.1),rgb(var(--color-card-rgb)/0.58))] p-3.5 shadow-[0_22px_58px_-48px_rgb(var(--color-primary-rgb)/0.72)]">
                         <div className="flex items-start gap-3">
                           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[color:rgb(var(--color-primary-rgb)/0.24)] bg-[color:rgb(var(--color-primary-rgb)/0.12)] text-[var(--color-primary)]">

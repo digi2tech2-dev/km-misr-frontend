@@ -4,7 +4,7 @@ import { isNativeGoogleAuthAvailable } from '../utils/platform';
 const NativeGoogleAuth = registerPlugin('NativeGoogleAuth');
 
 const unavailable = () => {
-  throw new Error('Native Google Sign-In is only available in the Android Clash Cash app.');
+  throw new Error('Native Google Sign-In is only available in the Android KM اولاد مصر app.');
 };
 
 export const signInWithNativeGoogle = async () => {

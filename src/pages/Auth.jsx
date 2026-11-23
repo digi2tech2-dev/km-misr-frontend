@@ -937,7 +937,7 @@ const countryOptions = useMemo(() => {
                   <Sparkles aria-hidden="true" className={styles.choiceSparkle} />
                 </div>
                 <h1 className={styles.choiceTitle}>
-                  {dir === 'rtl' ? 'أهلاً بك في CLASH cash' : 'Welcome to CLASH cash'}
+                  {dir === 'rtl' ? 'أهلاً بك في KM اولاد مصر' : 'Welcome to KM اولاد مصر'}
                 </h1>
                 <p className={styles.choiceSubtitle}>
                   {dir === 'rtl' ? 'اختر طريقة تسجيل الدخول للمتابعة' : 'Choose how you would like to sign in'}

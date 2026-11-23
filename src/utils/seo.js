@@ -1,184 +1,108 @@
-import resolveImageUrl from './imageUrl';
+export const SITE_NAME = 'KM أولاد مصر';
+export const SITE_ORIGIN = 'https://km-wiladmisr.com';
+export const SITE_LOGO_PATH = '/km-olad-masr-logo.png';
 
-const STORE_NAME = 'Clash Cash';
-const PRIMARY_SITE_ORIGIN = 'https://ad-card.com';
-const DEFAULT_DESCRIPTION = 'Clash Cash منصة متكاملة لشحن الألعاب وتطبيقات الدردشة الصوتية وشراء الاشتراكات والبطاقات والخدمات الرقمية بسرعة وأمان.';
+const alternateNames = ['KM اولاد مصر', 'كي إم أولاد مصر', 'KM Wilad Misr', 'KM Olad Masr', 'KM Awlad Masr'];
 
-const SEARCH_PHRASES = [
-  'شحن تطبيقات دردشة صوتية',
-  'شحن برامج دردشة صوتية',
-  'شحن تطبيقات صوتية',
-  'شحن العاب',
-  'شحن الألعاب',
-  'اشتراكات تطبيقات',
-  'اشتراكات رقمية',
-  'بطاقات رقمية',
-  'شحن منتجات رقمية',
-  'Clash Cash',
-];
-
-const cleanText = (value) => String(value || '')
-  .replace(/\s+/g, ' ')
-  .trim();
-
-const truncateText = (value, maxLength = 155) => {
-  const text = cleanText(value);
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength - 1).trim()}…`;
+export const storefrontDescription = {
+  ar: 'شحن الألعاب وتطبيقات الدردشة الصوتية، وشراء البطاقات والاشتراكات الرقمية.',
+  en: 'Top up games and voice chat apps, and shop for digital cards and subscriptions.',
 };
 
-export const getSiteOrigin = () => {
-  const configuredUrl = cleanText(import.meta.env.VITE_SITE_URL || import.meta.env.VITE_PUBLIC_SITE_URL);
-  if (configuredUrl) return configuredUrl.replace(/\/+$/, '');
-  return PRIMARY_SITE_ORIGIN;
+const publicPages = {
+  '/': {
+    ar: ['شحن الألعاب والتطبيقات والبطاقات الرقمية', storefrontDescription.ar],
+    en: ['Game Top-Ups, Apps and Digital Cards', storefrontDescription.en],
+  },
+  '/about-us': {
+    ar: ['من نحن', 'تعرّف على متجر شحن الألعاب وتطبيقات الدردشة الصوتية والبطاقات الرقمية.'],
+    en: ['About us', 'Learn about the store for game top-ups, voice chat apps, and digital cards.'],
+  },
+  '/api-docs': {
+    ar: ['دليل المطورين', 'دليل ربط المتاجر بواجهة API لشحن الألعاب والتطبيقات وإدارة الطلبات.'],
+    en: ['API documentation', 'Learn how to integrate with the API for game top-ups, apps, and order management.'],
+  },
 };
 
-export const toAbsoluteUrl = (value) => {
-  const resolved = resolveImageUrl(value);
-  if (!resolved) return '';
-  if (/^https?:\/\//i.test(resolved)) return resolved;
+export const sitemapPaths = Object.keys(publicPages);
 
-  const origin = getSiteOrigin();
-  if (!origin) return resolved;
-  return `${origin}${resolved.startsWith('/') ? '' : '/'}${resolved}`;
-};
-
-export const getProductSeoName = (product, language = 'ar') => {
-  const arabicName = cleanText(product?.nameAr || product?.displayName || product?.name);
-  const englishName = cleanText(product?.name || product?.externalProductName);
-  return language === 'ar'
-    ? cleanText([arabicName, englishName && englishName !== arabicName ? englishName : ''].join(' - '))
-    : cleanText([englishName || arabicName, arabicName && arabicName !== englishName ? arabicName : ''].join(' - '));
-};
-
-export const getProductSeoDescription = (product, language = 'ar') => {
-  const productName = getProductSeoName(product, language);
-  const description = cleanText(product?.displayDescription || product?.descriptionAr || product?.description);
-  const fallback = language === 'ar'
-    ? `شحن ${productName} عبر Clash Cash ضمن خدمات شحن تطبيقات الدردشة الصوتية، الألعاب، الاشتراكات، والمنتجات الرقمية.`
-    : `Top up ${productName} through Clash Cash for voice chat apps, games, subscriptions, and digital products.`;
-
-  return truncateText(description || fallback, 220);
-};
-
-const getProductPrice = (product) => {
-  const value = product?.storefrontPrice ?? product?.price ?? product?.basePrice ?? product?.unitPrice;
-  const price = Number(value);
-  return Number.isFinite(price) && price >= 0 ? price.toFixed(4) : '';
-};
-
-const getProductCurrency = (product) => cleanText(product?.currency || product?.currencyCode || 'USD').toUpperCase();
-
-export const buildStoreSeo = ({
-  products = [],
-  categories = [],
-  language = 'ar',
-  path = '/',
-  title,
-  description,
-} = {}) => {
-  const origin = getSiteOrigin();
-  const canonicalPath = path.startsWith('/') ? path : `/${path}`;
-  const canonicalUrl = origin ? `${origin}${canonicalPath}` : canonicalPath;
-  const visibleProducts = (Array.isArray(products) ? products : []).filter(Boolean).slice(0, 60);
-  const categoryNames = (Array.isArray(categories) ? categories : [])
-    .map((category) => cleanText(category?.title || category?.nameAr || category?.name))
-    .filter(Boolean)
-    .slice(0, 16);
-
-  const productKeywords = visibleProducts
-    .flatMap((product) => [product?.nameAr, product?.name, product?.externalProductName])
-    .map(cleanText)
-    .filter(Boolean)
-    .slice(0, 40);
-
-  const seoTitle = title || (
-    language === 'ar'
-      ? `${STORE_NAME} | شحن الألعاب والتطبيقات والبطاقات الرقمية`
-      : `${STORE_NAME} | Games, Apps and Digital Cards`
-  );
-  const seoDescription = truncateText(description || DEFAULT_DESCRIPTION, 160);
-  const keywords = [...SEARCH_PHRASES, ...categoryNames, ...productKeywords].join(', ');
-
-  const productList = visibleProducts.map((product, index) => {
-    const name = getProductSeoName(product, language);
-    const image = toAbsoluteUrl(product?.image || product?.imageUrl || product?.icon);
-    const price = getProductPrice(product);
-    const currency = getProductCurrency(product);
-    const productUrl = origin && product?.id ? `${origin}/products/${encodeURIComponent(product.id)}` : canonicalUrl;
-
-    return {
-      '@type': 'ListItem',
-      position: index + 1,
-      url: productUrl,
-      item: {
-        '@type': 'Product',
-        name,
-        alternateName: cleanText(product?.externalProductName || product?.name),
-        image: image ? [image] : undefined,
-        description: getProductSeoDescription(product, language),
-        sku: cleanText(product?.id || product?._id || product?.externalProductId),
-        brand: {
-          '@type': 'Brand',
-          name: STORE_NAME,
-        },
-        offers: price ? {
-          '@type': 'Offer',
-          url: productUrl,
-          priceCurrency: currency,
-          price,
-          availability: product?.storefrontStatus?.isPurchasable === false
-            ? 'https://schema.org/OutOfStock'
-            : 'https://schema.org/InStock',
-        } : undefined,
-      },
-    };
-  });
-
-  const jsonLd = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: STORE_NAME,
-      alternateName: 'Clash Cash',
-      url: origin || canonicalUrl,
-      logo: origin ? `${origin}/lool-store-logo.png?v=3` : '/lool-store-logo.png?v=3',
-      description: seoDescription,
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: STORE_NAME,
-      alternateName: 'Clash Cash',
-      url: origin || canonicalUrl,
-      inLanguage: language === 'ar' ? 'ar-EG' : 'en',
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Store',
-      name: STORE_NAME,
-      url: canonicalUrl,
-      description: seoDescription,
-      areaServed: 'EG',
-      currenciesAccepted: 'EGP, USD',
-    },
-  ];
-
-  if (productList.length) {
-    jsonLd.push({
-      '@context': 'https://schema.org',
-      '@type': 'ItemList',
-      name: language === 'ar' ? 'منتجات Clash Cash' : 'Clash Cash Products',
-      description: seoDescription,
-      itemListElement: productList,
-    });
+export const resolveSiteOrigin = (...urls) => {
+  for (const value of urls) {
+    if (!value?.trim()) continue;
+    try {
+      const url = new URL(value.trim());
+      if (['http:', 'https:'].includes(url.protocol) && !url.username && !url.password) {
+        return url.origin;
+      }
+    } catch {
+      // Try the next configured URL.
+    }
   }
+  return SITE_ORIGIN;
+};
+
+export const getSearchSiteName = (platformName) =>
+  !platformName || [SITE_NAME, ...alternateNames].includes(platformName) ? SITE_NAME : platformName;
+
+export const getPageSeo = ({ pathname = '/', language = 'ar', origin = SITE_ORIGIN, platformName } = {}) => {
+  const path = pathname.replace(/\/+$/, '') || '/';
+  const canonicalPath = path === '/catalog' ? '/' : path;
+  const locale = language === 'en' ? 'en' : 'ar';
+  const siteName = getSearchSiteName(platformName);
+  const page = Object.hasOwn(publicPages, canonicalPath) ? publicPages[canonicalPath][locale] : null;
+  const [heading, summary] = page || ['', storefrontDescription[locale]];
+  const homeUrl = `${origin}/`;
+  const logoUrl = `${origin}${SITE_LOGO_PATH}`;
+  const aliases = siteName === SITE_NAME ? alternateNames : undefined;
 
   return {
-    title: seoTitle,
-    description: seoDescription,
-    keywords,
-    canonicalUrl,
-    jsonLd,
+    siteName,
+    title: heading ? `${siteName} | ${heading}` : siteName,
+    description: `${siteName} — ${summary}`,
+    canonicalUrl: page ? `${origin}${canonicalPath}` : '',
+    robots: page ? 'index, follow, max-image-preview:large' : 'noindex, follow',
+    locale: locale === 'ar' ? 'ar_EG' : 'en_US',
+    logoUrl,
+    jsonLd: path === '/' ? {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebSite',
+          '@id': `${homeUrl}#website`,
+          name: siteName,
+          alternateName: aliases,
+          url: homeUrl,
+          inLanguage: ['ar-EG', 'en'],
+          publisher: { '@id': `${homeUrl}#organization` },
+        },
+        {
+          '@type': 'Organization',
+          '@id': `${homeUrl}#organization`,
+          name: siteName,
+          alternateName: aliases,
+          url: homeUrl,
+          logo: logoUrl,
+        },
+      ],
+    } : null,
   };
 };
+
+export const pageMeta = ({ siteName, title, description, canonicalUrl, robots, locale, logoUrl }) => [
+  ['name', 'application-name', siteName],
+  ['name', 'description', description],
+  ['name', 'robots', robots],
+  ['property', 'og:type', 'website'],
+  ['property', 'og:site_name', siteName],
+  ['property', 'og:title', title],
+  ['property', 'og:description', description],
+  ['property', 'og:locale', locale],
+  ['property', 'og:url', canonicalUrl],
+  ['property', 'og:image', logoUrl],
+  ['property', 'og:image:alt', siteName],
+  ['name', 'twitter:card', 'summary_large_image'],
+  ['name', 'twitter:title', title],
+  ['name', 'twitter:description', description],
+  ['name', 'twitter:image', logoUrl],
+  ['name', 'twitter:image:alt', siteName],
+];

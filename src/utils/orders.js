@@ -740,7 +740,7 @@ export const enrichOrders = (orders, { users = [], products = [], language = 'ar
       supplierOrderNumber,
       customerName,
       customerEmail,
-      customerAvatar: resolveUserAvatar(order?.customerAvatar || linkedUser?.avatar, customerName || customerEmail || 'Clash Cash User'),
+      customerAvatar: resolveUserAvatar(order?.customerAvatar || linkedUser?.avatar, customerName || customerEmail || 'KM اولاد مصر User'),
       productName,
       productImage: order?.productImage || linkedProduct?.image || '',
       productRecord: linkedProduct,

@@ -10,8 +10,9 @@ import HeaderBrand from '../components/layout/HeaderBrand';
 import PublicSidebar from '../components/layout/PublicSidebar';
 import SiteCopyrightFooter from '../components/layout/SiteCopyrightFooter';
 import { useBodyScrollLock } from '../utils/bodyScrollLock';
-import { buildWhatsAppLink, getDefaultWhatsAppNumber, SUPPORT_WHATSAPP_DISPLAY } from '../utils/whatsapp';
+import SupportContactLinks from '../components/ui/SupportContactLinks';
 import { usePlatformBrand } from '../context/ThemeContext';
+import { getSearchSiteName } from '../utils/seo';
 
 const AboutUsPage = () => {
   const { platformName, logoUrl } = usePlatformBrand();
@@ -19,7 +20,6 @@ const AboutUsPage = () => {
   const { i18n } = useTranslation();
   const loginWithGoogle = useAuthStore((state) => state.loginWithGoogle);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const primaryContactNumber = getDefaultWhatsAppNumber();
 
   const isArabic = String(i18n.resolvedLanguage || i18n.language || 'ar').toLowerCase().startsWith('ar');
   useBodyScrollLock(isMenuOpen);
@@ -127,7 +127,7 @@ const AboutUsPage = () => {
       />
 
       <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div className="mx-auto mb-4 max-w-5xl text-center"><a className="inline-flex rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-[var(--color-text)]" href={buildWhatsAppLink({ number: primaryContactNumber })} target="_blank" rel="noopener noreferrer">{isArabic ? 'خدمة العملاء' : 'Customer support'}: <span dir="ltr" className="mx-2">{SUPPORT_WHATSAPP_DISPLAY}</span></a></div>
+        <SupportContactLinks isArabic={isArabic} className="mx-auto mb-4 max-w-lg" />
         <div className="mx-auto mb-3 flex max-w-5xl justify-start">
           <button
             type="button"
@@ -165,7 +165,7 @@ const AboutUsPage = () => {
                   </div>
                 </div>
                 <h1 className="relative mt-5 text-3xl font-black text-slate-950 sm:text-4xl dark:text-white">
-                  {isArabic ? 'من نحن' : 'About us'}
+                  {isArabic ? 'عن' : 'About'} {getSearchSiteName(platformName)}
                 </h1>
               </div>
 
@@ -198,7 +198,7 @@ const AboutUsPage = () => {
         </motion.section>
       </main>
 
-      <SiteCopyrightFooter isArabic={isArabic} />
+      <SiteCopyrightFooter isArabic={isArabic} showEngineerContact={false} />
     </div>
   );
 };

@@ -2,14 +2,14 @@ export const translations = {
   ar: {
     // Auth
     welcomeBack: "مرحبًا بعودتك",
-    signInToAccount: "سجل الدخول إلى حسابك في Clash Cash",
-    globalSignInTitle: "بوابتك العالمية إلى Clash Cash",
+    signInToAccount: "سجل الدخول إلى حسابك في KM اولاد مصر",
+    globalSignInTitle: "بوابتك العالمية إلى KM اولاد مصر",
     globalSignInDescription: "سجّل الدخول بأمان من أي مكان، وتابع رصيدك وطلباتك بعملتك المفضلة.",
     worldwideAccess: "وصول عالمي",
     secureAccountAccess: "حساب آمن",
     fastVerification: "تحقق سريع",
     createAccount: "إنشاء حساب",
-    joinToday: "انضم في عالم Clash Cash حالا",
+    joinToday: "انضم في عالم KM اولاد مصر حالا",
     signIn: "تسجيل الدخول",
     signUp: "إنشاء حساب",
     forgotPassword: "نسيت كلمة المرور؟",
@@ -127,7 +127,7 @@ export const translations = {
     topupTrend: "اتجاه الشحنات",
 
     // Landing
-    brand: "Clash Cash",
+    brand: "KM اولاد مصر",
     landingHero: "وجهتك المميزة لشراء رصيد الألعاب، واشتراكات التطبيقات، والمنتجات الرقمية.",
     landingHeroSub: "توصيل فوري، ومدفوعات آمنة.",
     getStarted: "ابدأ الآن",

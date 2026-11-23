@@ -8,13 +8,15 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { textareaClassName } from '../components/ui/Input';
 import { cn } from '../components/ui/Button';
-import { buildWhatsAppLink, getAdminWhatsAppNumber } from '../utils/whatsapp';
+import { buildWhatsAppLink } from '../utils/whatsapp';
 import { useLanguage } from '../context/LanguageContext';
 import useAuthStore from '../store/useAuthStore';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import HeaderBrand from '../components/layout/HeaderBrand';
 import PublicSidebar from '../components/layout/PublicSidebar';
 import SiteCopyrightFooter from '../components/layout/SiteCopyrightFooter';
+import SupportContactLinks from '../components/ui/SupportContactLinks';
+import useCustomerSupportContacts from '../hooks/useCustomerSupportContacts';
 import { useBodyScrollLock } from '../utils/bodyScrollLock';
 
 const ContactUs = ({ accountOnly = false }) => {
@@ -22,6 +24,7 @@ const ContactUs = ({ accountOnly = false }) => {
   const { dir } = useLanguage();
   const { i18n } = useTranslation();
   const loginWithGoogle = useAuthStore((state) => state.loginWithGoogle);
+  const [primaryContact] = useCustomerSupportContacts();
   const isArabic = String(i18n.resolvedLanguage || i18n.language || dir || 'ar').toLowerCase().startsWith('ar');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -34,17 +37,17 @@ const ContactUs = ({ accountOnly = false }) => {
     if (isArabic) {
       return {
         eyebrow: 'الشكاوي والتواصل',
-        title: accountOnly ? 'مشاكل الحساب' : 'تواصل مع صاحب الموقع',
+        title: accountOnly ? 'مشاكل الحساب' : 'خدمة العملاء',
         description: accountOnly
-          ? 'اختر مشكلة الحساب، وسنجهز رسالة واضحة لصاحب الموقع عبر واتساب.'
-          : 'اختر نوع المشكلة، وسنجهز رسالة واضحة لصاحب الموقع عبر واتساب.',
+          ? 'اختر مشكلة الحساب، وسنجهز رسالة واضحة لخدمة العملاء عبر واتساب.'
+          : 'اختر نوع المشكلة، وسنجهز رسالة واضحة لخدمة العملاء عبر واتساب.',
         complaintLabel: 'اختر نوع الشكوى',
         messageLabel: 'الشكوى أو الرسالة',
         messagePlaceholder: 'اختر نوع الشكوى أو اكتب التفاصيل هنا',
         submit: 'إرسال',
-        helper: 'سيتم فتح واتساب برسالة موجهة لصاحب الموقع.',
+        helper: 'سيتم فتح واتساب برسالة موجهة لخدمة العملاء.',
         previewTitle: 'معاينة الرسالة',
-        previewHint: 'سيظهر النص بهذا الشكل لصاحب الموقع داخل واتساب.',
+        previewHint: 'سيظهر النص بهذا الشكل لخدمة العملاء داخل واتساب.',
         messageRequired: 'اختر نوع الشكوى أو اكتب الرسالة أولًا.',
         success: 'تم تجهيز الرسالة وفتح واتساب.',
       };
@@ -52,17 +55,17 @@ const ContactUs = ({ accountOnly = false }) => {
 
     return {
       eyebrow: 'Contact us',
-      title: accountOnly ? 'Account issues' : 'Contact us quickly and clearly',
+      title: accountOnly ? 'Account issues' : 'Customer support',
       description: accountOnly
-        ? 'Choose the account issue, and we will prepare a clear WhatsApp message for the site owner.'
-        : 'Choose the issue type, and we will prepare a clear WhatsApp message for the site owner.',
+        ? 'Choose the account issue, and we will prepare a clear WhatsApp message for customer support.'
+        : 'Choose the issue type, and we will prepare a clear WhatsApp message for customer support.',
       complaintLabel: 'Choose complaint type',
       messageLabel: 'Complaint or message',
       messagePlaceholder: 'Choose a complaint type or write the details here',
       submit: 'Send',
-      helper: 'WhatsApp will open with a message addressed to the site owner.',
+      helper: 'WhatsApp will open with a message addressed to customer support.',
       previewTitle: 'Message preview',
-      previewHint: 'This is how the text will appear to the site owner inside WhatsApp.',
+      previewHint: 'This is how the text will appear to customer support inside WhatsApp.',
       messageRequired: 'Message is required.',
       success: 'Your message is ready and WhatsApp has been opened.',
     };
@@ -76,54 +79,54 @@ const ContactUs = ({ accountOnly = false }) => {
               {
                 id: 'account-login',
                 label: 'تسجيل الدخول',
-                text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في تسجيل الدخول\nتفاصيل المشكلة: لا أستطيع الدخول إلى حسابي.\nالبريد أو رقم الحساب: ',
+                text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في تسجيل الدخول\nتفاصيل المشكلة: لا أستطيع الدخول إلى حسابي.\nالبريد أو رقم الحساب: ',
               },
               {
                 id: 'account-activation',
                 label: 'تفعيل الحساب',
-                text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في تفعيل الحساب\nتفاصيل المشكلة: حسابي ما زال قيد المراجعة أو لم يتم تفعيله.\nالبريد أو رقم الحساب: ',
+                text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في تفعيل الحساب\nتفاصيل المشكلة: حسابي ما زال قيد المراجعة أو لم يتم تفعيله.\nالبريد أو رقم الحساب: ',
               },
               {
                 id: 'account-password',
                 label: 'كلمة المرور',
-                text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في كلمة المرور\nتفاصيل المشكلة: أواجه مشكلة في تغيير أو استعادة كلمة المرور.\nالبريد أو رقم الحساب: ',
+                text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في كلمة المرور\nتفاصيل المشكلة: أواجه مشكلة في تغيير أو استعادة كلمة المرور.\nالبريد أو رقم الحساب: ',
               },
               {
                 id: 'account-data',
                 label: 'بيانات الحساب',
-                text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في بيانات الحساب\nتفاصيل المشكلة: أحتاج تعديل أو مراجعة بيانات حسابي.\nالبريد أو رقم الحساب: ',
+                text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في بيانات الحساب\nتفاصيل المشكلة: أحتاج تعديل أو مراجعة بيانات حسابي.\nالبريد أو رقم الحساب: ',
               },
               {
                 id: 'account-blocked',
                 label: 'حساب مرفوض',
-                text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: الحساب مرفوض أو لا يعمل\nتفاصيل المشكلة: أحتاج معرفة سبب المشكلة ومراجعة حالة الحساب.\nالبريد أو رقم الحساب: ',
+                text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: الحساب مرفوض أو لا يعمل\nتفاصيل المشكلة: أحتاج معرفة سبب المشكلة ومراجعة حالة الحساب.\nالبريد أو رقم الحساب: ',
               },
             ]
           : [
               {
                 id: 'account-login',
                 label: 'Login',
-                text: 'Message to site owner\nComplaint type: Login issue\nDetails: I cannot access my account.\nEmail or account ID: ',
+                text: 'Message to customer support\nComplaint type: Login issue\nDetails: I cannot access my account.\nEmail or account ID: ',
               },
               {
                 id: 'account-activation',
                 label: 'Activation',
-                text: 'Message to site owner\nComplaint type: Account activation issue\nDetails: My account is still pending review or has not been activated.\nEmail or account ID: ',
+                text: 'Message to customer support\nComplaint type: Account activation issue\nDetails: My account is still pending review or has not been activated.\nEmail or account ID: ',
               },
               {
                 id: 'account-password',
                 label: 'Password',
-                text: 'Message to site owner\nComplaint type: Password issue\nDetails: I have a password reset or password change issue.\nEmail or account ID: ',
+                text: 'Message to customer support\nComplaint type: Password issue\nDetails: I have a password reset or password change issue.\nEmail or account ID: ',
               },
               {
                 id: 'account-data',
                 label: 'Account data',
-                text: 'Message to site owner\nComplaint type: Account data issue\nDetails: I need to update or review my account information.\nEmail or account ID: ',
+                text: 'Message to customer support\nComplaint type: Account data issue\nDetails: I need to update or review my account information.\nEmail or account ID: ',
               },
               {
                 id: 'account-blocked',
                 label: 'Blocked account',
-                text: 'Message to site owner\nComplaint type: Account rejected or not working\nDetails: I need to know the reason and review the account status.\nEmail or account ID: ',
+                text: 'Message to customer support\nComplaint type: Account rejected or not working\nDetails: I need to know the reason and review the account status.\nEmail or account ID: ',
               },
             ]
       )
@@ -132,54 +135,54 @@ const ContactUs = ({ accountOnly = false }) => {
           {
             id: 'product-topup',
             label: 'شحن المنتج',
-            text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في شحن المنتج\nتفاصيل المشكلة: لم يتم شحن المنتج أو يوجد تأخير في تنفيذ الطلب.\nرقم الطلب: \nاسم المنتج: ',
+            text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في شحن المنتج\nتفاصيل المشكلة: لم يتم شحن المنتج أو يوجد تأخير في تنفيذ الطلب.\nرقم الطلب: \nاسم المنتج: ',
           },
           {
             id: 'wallet-balance',
             label: 'الرصيد',
-            text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في الرصيد أو المحفظة\nتفاصيل المشكلة: يوجد خطأ في الرصيد أو لم يتم إضافة الشحن.\nالمبلغ: \nرقم عملية الدفع إن وجد: ',
+            text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في الرصيد أو المحفظة\nتفاصيل المشكلة: يوجد خطأ في الرصيد أو لم يتم إضافة الشحن.\nالمبلغ: \nرقم عملية الدفع إن وجد: ',
           },
           {
             id: 'account',
             label: 'الحساب',
-            text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في الحساب\nتفاصيل المشكلة: أواجه مشكلة في تسجيل الدخول أو بيانات الحساب.\nالبريد أو رقم الحساب: ',
+            text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في الحساب\nتفاصيل المشكلة: أواجه مشكلة في تسجيل الدخول أو بيانات الحساب.\nالبريد أو رقم الحساب: ',
           },
           {
             id: 'order',
             label: 'الطلب',
-            text: 'رسالة إلى صاحب الموقع\nنوع الشكوى: مشكلة في الطلب\nتفاصيل المشكلة: أحتاج مراجعة حالة الطلب أو تعديل بياناته.\nرقم الطلب: ',
+            text: 'رسالة إلى خدمة العملاء\nنوع الشكوى: مشكلة في الطلب\nتفاصيل المشكلة: أحتاج مراجعة حالة الطلب أو تعديل بياناته.\nرقم الطلب: ',
           },
           {
             id: 'general',
             label: 'تواصل عام',
-            text: 'رسالة إلى صاحب الموقع\nنوع الرسالة: تواصل عام\nتفاصيل الرسالة: ',
+            text: 'رسالة إلى خدمة العملاء\nنوع الرسالة: تواصل عام\nتفاصيل الرسالة: ',
           },
         ]
       : [
           {
             id: 'product-topup',
             label: 'Product top-up',
-            text: 'Message to site owner\nComplaint type: Product top-up issue\nDetails: The product was not delivered or the order is delayed.\nOrder number: \nProduct name: ',
+            text: 'Message to customer support\nComplaint type: Product top-up issue\nDetails: The product was not delivered or the order is delayed.\nOrder number: \nProduct name: ',
           },
           {
             id: 'wallet-balance',
             label: 'Balance',
-            text: 'Message to site owner\nComplaint type: Wallet or balance issue\nDetails: There is a balance error or the top-up was not added.\nAmount: \nPayment reference if available: ',
+            text: 'Message to customer support\nComplaint type: Wallet or balance issue\nDetails: There is a balance error or the top-up was not added.\nAmount: \nPayment reference if available: ',
           },
           {
             id: 'account',
             label: 'Account',
-            text: 'Message to site owner\nComplaint type: Account issue\nDetails: I have a login or account information issue.\nEmail or account ID: ',
+            text: 'Message to customer support\nComplaint type: Account issue\nDetails: I have a login or account information issue.\nEmail or account ID: ',
           },
           {
             id: 'order',
             label: 'Order',
-            text: 'Message to site owner\nComplaint type: Order issue\nDetails: I need to review the order status or update its details.\nOrder number: ',
+            text: 'Message to customer support\nComplaint type: Order issue\nDetails: I need to review the order status or update its details.\nOrder number: ',
           },
           {
             id: 'general',
             label: 'General contact',
-            text: 'Message to site owner\nMessage type: General contact\nDetails: ',
+            text: 'Message to customer support\nMessage type: General contact\nDetails: ',
           },
         ]
   ), [accountOnly, isArabic]);
@@ -189,8 +192,8 @@ const ContactUs = ({ accountOnly = false }) => {
 
     if (!trimmedMessage) {
       return isArabic
-        ? 'رسالة إلى صاحب الموقع\nنوع الشكوى: -\nتفاصيل المشكلة: -'
-        : 'Message to site owner\nComplaint type: -\nDetails: -';
+        ? 'رسالة إلى خدمة العملاء\nنوع الشكوى: -\nتفاصيل المشكلة: -'
+        : 'Message to customer support\nComplaint type: -\nDetails: -';
     }
 
     return trimmedMessage;
@@ -209,7 +212,7 @@ const ContactUs = ({ accountOnly = false }) => {
     }
 
     const href = buildWhatsAppLink({
-      number: getAdminWhatsAppNumber(),
+      number: primaryContact?.number,
       message: trimmedMessage,
     });
 
@@ -325,6 +328,7 @@ const ContactUs = ({ accountOnly = false }) => {
           </button>
         </div>
       ) : null}
+      <SupportContactLinks isArabic={isArabic} message={message} className="mx-auto mb-4 max-w-6xl" />
       <div className="relative mx-auto grid w-full max-w-6xl items-start gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-6">
         <motion.section
           initial={{ opacity: 0, y: 18 }}
@@ -356,7 +360,7 @@ const ContactUs = ({ accountOnly = false }) => {
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[color:rgb(var(--color-primary-rgb)/0.2)] bg-[color:rgb(var(--color-primary-rgb)/0.08)] p-4 text-sm leading-6 text-[var(--color-text-secondary)]">
               <Sparkles className="mb-2 h-5 w-5 text-[var(--color-primary)]" />
-              {isArabic ? 'المعاينة تتحدث أثناء الكتابة قبل إرسالها لصاحب الموقع.' : 'The preview updates while you type before sending it to the site owner.'}
+              {isArabic ? 'المعاينة تتحدث أثناء الكتابة قبل إرسالها لخدمة العملاء.' : 'The preview updates while you type before sending it to customer support.'}
             </div>
           </div>
         </motion.section>
@@ -440,10 +444,15 @@ const ContactUs = ({ accountOnly = false }) => {
                 ) : null}
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
+              <Button type="submit" size="lg" className="w-full" disabled={!primaryContact}>
                 <Send className="h-4 w-4" />
                 {ui.submit}
               </Button>
+              {!primaryContact && (
+                <p role="status" className="text-sm text-[var(--color-text-secondary)]">
+                  {isArabic ? 'لا توجد أرقام واتساب متاحة حاليًا.' : 'No WhatsApp numbers are currently available.'}
+                </p>
+              )}
 
               {submitted ? (
                 <div className="flex items-start gap-2 rounded-[var(--radius-lg)] border border-[color:rgb(var(--color-success-rgb)/0.24)] bg-[color:rgb(var(--color-success-rgb)/0.1)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
@@ -457,7 +466,7 @@ const ContactUs = ({ accountOnly = false }) => {
       </div>
       </div>
       {accountOnly ? (
-        <SiteCopyrightFooter isArabic={isArabic} />
+        <SiteCopyrightFooter isArabic={isArabic} showEngineerContact={false} />
       ) : null}
     </div>
   );

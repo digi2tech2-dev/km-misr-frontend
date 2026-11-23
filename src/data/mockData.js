@@ -5,7 +5,7 @@ import buyCardsImage from '../assets/slide-3.webp';
 export const mockUsers = [
   {
     id: 'u1',
-    name: 'Clash Cash Admin',
+    name: 'KM اولاد مصر Admin',
     email: 'admin@ad-card.com',
     password: 'REDACTED',
     role: 'admin',

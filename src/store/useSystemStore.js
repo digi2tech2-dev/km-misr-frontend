@@ -48,16 +48,16 @@ const createInitialPaymentSettings = () => ({
   instructions: '',
   whatsappNumber: isRealProvider ? '' : getDefaultWhatsAppNumber(),
   paymentGroups: isRealProvider ? [] : createDefaultPaymentGroups(),
-  supportContacts: { owner: '', support: '', entries: [], revision: 0 },
+  supportContacts: isRealProvider ? null : { entries: [], revision: 0 },
   adminNotificationWhatsApp: '',
 });
 
-const normalizeStorePaymentSettings = (settings = {}) => ({
+const normalizeStorePaymentSettings = (settings = {}, supportContacts) => ({
   countryAccounts: Array.isArray(settings?.countryAccounts) ? settings.countryAccounts : [],
   instructions: settings?.instructions || '',
   whatsappNumber: settings?.whatsappNumber || (isRealProvider ? '' : getDefaultWhatsAppNumber()),
   paymentGroups: normalizePaymentGroups(settings?.paymentGroups, { fallbackToDefault: !isRealProvider }),
-  supportContacts: settings?.supportContacts || { owner: '', support: '', entries: [], revision: 0 },
+  supportContacts: settings?.supportContacts ?? supportContacts,
   adminNotificationWhatsApp: String(settings?.adminNotificationWhatsApp || ''),
 });
 
@@ -189,7 +189,7 @@ const useSystemStore = create((set, get) => ({
     const requestId = ++paymentSettingsRequestId;
     const request = apiClient.system.paymentSettings()
       .then((settings) => {
-        const nextPaymentSettings = normalizeStorePaymentSettings(settings);
+        const nextPaymentSettings = normalizeStorePaymentSettings(settings, get().paymentSettings.supportContacts);
 
         if (requestId === paymentSettingsRequestId) {
           set({
@@ -202,7 +202,10 @@ const useSystemStore = create((set, get) => ({
       .catch(() => {
         // On error, keep current state but return a safe default
         if (!isRealProvider) return get().paymentSettings;
-        const emptyPaymentSettings = createInitialPaymentSettings();
+        const emptyPaymentSettings = {
+          ...createInitialPaymentSettings(),
+          supportContacts: get().paymentSettings.supportContacts,
+        };
         if (requestId === paymentSettingsRequestId) {
           set({ paymentSettings: emptyPaymentSettings });
           return emptyPaymentSettings;
@@ -227,7 +230,7 @@ const useSystemStore = create((set, get) => ({
       } : {}),
     };
     const saved = await apiClient.system.updatePaymentSettings(normalizedPayload, actor);
-    const nextPaymentSettings = normalizeStorePaymentSettings(saved);
+    const nextPaymentSettings = normalizeStorePaymentSettings(saved, get().paymentSettings.supportContacts);
     paymentSettingsRequestId += 1;
     paymentSettingsRequest = null;
     set({

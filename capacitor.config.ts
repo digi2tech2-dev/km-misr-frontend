@@ -13,7 +13,7 @@ try {
 
 const config: CapacitorConfig = {
   appId: 'com.adcard.app',
-  appName: 'Clash Cash',
+  appName: 'KM اولاد مصر',
   webDir: 'dist',
   server: {
     url: serverUrl,

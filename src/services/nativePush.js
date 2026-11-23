@@ -5,8 +5,8 @@ import { getSafeInternalRoute } from '../utils/safeInternalRoute';
 const PUSH_ACTION_EVENT = 'adcard:push-action';
 const CHANNEL = {
   id: 'adcard_general',
-  name: 'Clash Cash Notifications',
-  description: 'Account and order updates from Clash Cash',
+  name: 'KM اولاد مصر Notifications',
+  description: 'Account and order updates from KM اولاد مصر',
 };
 
 let activeUserId = null;

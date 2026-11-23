@@ -254,7 +254,12 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
         <span className="ka-sidebar-icon-bubble">
           <item.icon className="h-5 w-5" strokeWidth={1.8} />
         </span>
-        {isExpanded && <span className="truncate text-[0.8rem] font-semibold">{item.label}</span>}
+        {isExpanded && <span className="flex-1 truncate text-[0.8rem] font-semibold">{item.label}</span>}
+        <Check
+          aria-hidden="true"
+          strokeWidth={2.5}
+          className={cn('ka-sidebar-nav-check', !isExpanded && 'ka-sidebar-nav-check--compact')}
+        />
       </button>
     ) : (
       <NavLink
@@ -278,8 +283,13 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
               <item.icon className="h-5 w-5" strokeWidth={1.8} />
               {!isExpanded && item.count !== undefined && <span className="absolute -end-1 -top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-0.5 text-[0.6rem] font-bold leading-none text-white">{item.count}</span>}
             </span>
-            {isExpanded && <span className="truncate text-[0.8rem] font-semibold">{item.label}</span>}
-            {isExpanded && item.count !== undefined && <span className="ms-auto rounded-full bg-rose-500/12 px-2 py-0.5 text-[0.7rem] font-bold text-rose-500">{item.count}</span>}
+            {isExpanded && <span className="flex-1 truncate text-[0.8rem] font-semibold">{item.label}</span>}
+            {isExpanded && item.count !== undefined && <span className="rounded-full bg-rose-500/12 px-2 py-0.5 text-[0.7rem] font-bold text-rose-500">{item.count}</span>}
+            <Check
+              aria-hidden="true"
+              strokeWidth={2.5}
+              className={cn('ka-sidebar-nav-check', !isExpanded && 'ka-sidebar-nav-check--compact')}
+            />
           </>
         )}
       </NavLink>

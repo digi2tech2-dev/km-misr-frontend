@@ -201,7 +201,7 @@ const Account = () => {
     }
   }, [location.hash]);
 
-  const avatarIdentity = form.fullName || savedProfile.fullName || form.username || savedProfile.username || form.email || savedProfile.email || 'Clash Cash User';
+  const avatarIdentity = form.fullName || savedProfile.fullName || form.username || savedProfile.username || form.email || savedProfile.email || 'KM اولاد مصر User';
   const fallbackAvatar = resolveUserAvatar({ name: avatarIdentity, avatar: '' }, avatarIdentity);
   const displayedAvatar =
     form.avatarAction === 'remove'

@@ -12,6 +12,7 @@ import NativeAppUpdateGate from './components/native/NativeAppUpdateGate';
 import RouteErrorBoundary from './components/app/RouteErrorBoundary';
 import ConnectionNotice from './components/app/ConnectionNotice';
 import MaintenanceBoundary from './components/app/MaintenanceBoundary';
+import Seo from './components/seo/Seo';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './components/ui/Toast';
@@ -490,6 +491,7 @@ function App() {
         <ToastProvider>
           <SessionBootstrap />
           <BrowserRouter>
+            <Seo />
             <ConnectionNotice />
             <MaintenanceBoundary>
             <NativePlatformBootstrap />

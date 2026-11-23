@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import {
+  Check,
   MessageCircleMore,
   House,
   CircleHelp,
@@ -153,6 +154,7 @@ const PublicSidebar = ({ isOpen, onClose, onLogin, onHome, onAbout, onContact, o
                 key={item.label}
                 type="button"
                 onClick={item.onClick}
+                aria-current={item.isActive ? 'page' : undefined}
                 className={cn(
                   'ka-sidebar-nav-item group relative flex w-full items-center gap-2.5 overflow-hidden px-3 py-1.5 transition-all',
                   item.isActive
@@ -166,7 +168,8 @@ const PublicSidebar = ({ isOpen, onClose, onLogin, onHome, onAbout, onContact, o
                 )}>
                   <item.icon className="h-5 w-5" strokeWidth={1.8} />
                 </span>
-                <span className="truncate text-sm font-bold">{item.label}</span>
+                <span className="flex-1 truncate text-start text-sm font-bold">{item.label}</span>
+                <Check aria-hidden="true" strokeWidth={2.5} className="ka-sidebar-nav-check" />
               </button>
             ))}
 

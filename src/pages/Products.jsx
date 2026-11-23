@@ -1,6 +1,6 @@
 import React, { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
 import { Layers3, Search, ChevronRight, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/useAuthStore';
 import useMediaStore from '../store/useMediaStore';
@@ -13,13 +13,11 @@ import ProductCardSimple from '../components/products/ProductCardSimple';
 import ProductPurchaseDialog from '../components/products/ProductPurchaseDialog';
 import LoadingSkeleton from '../components/products/LoadingSkeleton';
 import EmptyState from '../components/products/EmptyState';
-import Seo from '../components/seo/Seo';
 import {
   createStorefrontCategories,
   createStorefrontProducts,
   getStorefrontLanguage,
 } from '../utils/storefront';
-import { buildStoreSeo, toAbsoluteUrl } from '../utils/seo';
 import slideFourImage from '../assets/slide-4.webp';
 import slideThreeImage from '../assets/slide-3.webp';
 
@@ -73,7 +71,6 @@ const getProductsPageCopy = (language = 'ar') => (
 
 const Products = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const products = useMediaStore((state) => state.products);
   const categories = useMediaStore((state) => state.categories);
@@ -378,33 +375,8 @@ const Products = () => {
   const shouldMergeProductsWithSubcategories =
     currentParentId !== null && !activeSubcategoryId && currentCategories.length > 0;
 
-  const seoData = useMemo(
-    () => buildStoreSeo({
-      products: storefrontProducts,
-      categories: storefrontCategories,
-      language,
-      path: `${location.pathname}${location.search || ''}`,
-    }),
-    [language, location.pathname, location.search, storefrontCategories, storefrontProducts]
-  );
-
-  const seoImage = useMemo(
-    () => toAbsoluteUrl(storefrontProducts.find((product) => product?.image)?.image || '/android-chrome-192x192.png?v=ka-card'),
-    [storefrontProducts]
-  );
-
   return (
     <div className="products-page space-y-5 pb-4 sm:space-y-6">
-      <Seo
-        title={seoData.title}
-        description={seoData.description}
-        keywords={seoData.keywords}
-        canonicalUrl={seoData.canonicalUrl}
-        image={seoImage}
-        language={language}
-        jsonLd={seoData.jsonLd}
-      />
-
       <HeroSlider slides={categorySlides} />
 
       <section className="border-0 bg-transparent p-0 shadow-none">

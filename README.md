@@ -724,6 +724,7 @@ Static hosting requirements:
 - `public/_redirects` already contains the Netlify-style fallback `/* /index.html 200`.
 - For Nginx/Apache or other hosts, configure equivalent rewrites.
 - Environment variables are read at build time. Rebuild after changing `VITE_*` values.
+- The build generates `robots.txt` and `sitemap.xml` for `https://km-wiladmisr.com` by default. Set `VITE_SITE_URL` to the production origin if it changes so the sitemap and canonical URLs agree.
 - Backend CORS must allow the deployed frontend origin.
 - Use HTTPS for auth tokens, OAuth callbacks, uploads, and payment/deposit flows.
 - Ensure uploaded file URLs under `/uploads` are served by the backend or a CDN reachable by the frontend.
