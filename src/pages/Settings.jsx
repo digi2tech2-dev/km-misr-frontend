@@ -17,6 +17,7 @@ import {
   Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import AdminDevices from '../components/settings/AdminDevices';
 import SettingsSection from '../components/settings/SettingsSection';
 import SettingsItem from '../components/settings/SettingsItem';
 import ConfirmDialog from '../components/account/ConfirmDialog';
@@ -366,14 +367,14 @@ const Settings = () => {
               action={text.open}
               onClick={() => openFromSettings('/account-security')}
             />
-            <SettingsItem
+            {isAdmin ? <AdminDevices english={isEnglish} /> : <SettingsItem
               icon={CheckCircle2}
               title={text.logoutAllDevices}
               description={text.logoutAllDevicesDescription}
               action={text.active}
               destructive
               onClick={handlePlaceholderSecurityAction}
-            />
+            />}
           </SettingsSection>
         </motion.section>
       </div>

@@ -2202,6 +2202,9 @@ const realApi = {
       return { user, token };
     },
 
+    listSessions: async () => unwrap(await http.get('/auth/sessions')),
+    revokeSession: (id) => http.delete('/auth/sessions/' + encodeURIComponent(id)),
+
     getProfile: async (_userId) => {
       // Prefer the self-profile endpoint used elsewhere in this adapter.
       // Some deployments don't expose `/me` but do expose `/users/me`.
@@ -2224,6 +2227,9 @@ const realApi = {
     logout: async () => {
       const logoutToken = getStoredToken();
       await Promise.allSettled([
+        isAdmin() && logoutToken && http.delete('/auth/sessions/current', {
+          headers: { Authorization: 'Bearer ' + logoutToken },
+        }),
         unregisterNativePush({
           unregisterToken: (token) => http.delete('/me/devices/push', {
             data: { token },
