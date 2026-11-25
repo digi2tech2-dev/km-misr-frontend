@@ -193,6 +193,41 @@ const trimStringFields = (payload = {}) => Object.fromEntries(
 );
 
 const AdminSuppliers = () => {
+  const [coinSupplier, setCoinSupplier] = useState(null);
+  const [coinForm, setCoinForm] = useState({ name: '', unitCost: '', minQty: '', maxQty: '' });
+  const [coinLoading, setCoinLoading] = useState(false);
+  const [coinSaving, setCoinSaving] = useState(false);
+  const [coinError, setCoinError] = useState('');
+  const isBulala = (row) => [row?.supplierCode, row?.slug, row?.supplierName, row?.name]
+    .some(value => ['coinrecharge', 'bulala', 'ibulala', 'ibulalachat'].includes(String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '')));
+  const openCoinSettings = async (row) => {
+    setIsOpen(false);
+    setCoinSupplier(row);
+    setCoinLoading(true);
+    setCoinError('');
+    setCoinForm({ name: '', unitCost: '', minQty: '', maxQty: '' });
+    try {
+      const saved = await apiClient.suppliers.getCoinSettings(row.id);
+      if (saved === undefined) throw new Error('إعدادات الشحن تتطلب الاتصال بالخادم الحقيقي.');
+      if (saved) setCoinForm(saved);
+    } catch (error) {
+      setCoinError(error.message || 'تعذر تحميل إعدادات الشحن');
+    } finally { setCoinLoading(false); }
+  };
+  const saveCoinSettings = async (event) => {
+    event.preventDefault();
+    setCoinSaving(true);
+    setCoinError('');
+    try {
+      const result = await apiClient.suppliers.saveCoinSettings(coinSupplier.id, {
+        ...coinForm, minQty: Number(coinForm.minQty), maxQty: Number(coinForm.maxQty),
+      });
+      if (!result?.productId) throw new Error('لم يؤكد الخادم حفظ المنتج.');
+      addToast('تم حفظ الإعدادات وتجهيز المنتج بنجاح', 'success');
+      setCoinSupplier(null);
+    } catch (error) { setCoinError(error.message || 'تعذر حفظ الإعدادات'); }
+    finally { setCoinSaving(false); }
+  };
   const { addToast } = useToast();
   const { user } = useAuthStore();
   const [suppliers, setSuppliers] = useState([]);
@@ -823,6 +858,18 @@ const AdminSuppliers = () => {
         ) : null}
       </Modal>
 
+      <Modal isOpen={Boolean(coinSupplier)} onClose={() => { if (!coinSaving && !coinLoading) setCoinSupplier(null); }} title="إعداد شحن العملات — Bulala">
+        {coinLoading ? <p>جاري تحميل الإعدادات...</p> : (
+          <form onSubmit={saveCoinSettings} className="space-y-4">
+            {coinError && <p role="alert" className="text-red-500">{coinError}</p>}
+            <Input label="اسم منتج الشحن" required minLength={2} maxLength={200} value={coinForm.name} onChange={e => setCoinForm({ ...coinForm, name: e.target.value })} />
+            <Input label="تكلفة العملة الواحدة (USD)" required type="text" inputMode="decimal" value={coinForm.unitCost} onChange={e => setCoinForm({ ...coinForm, unitCost: e.target.value })} />
+            <Input label="أقل كمية شحن" required type="number" min="1" step="1" value={coinForm.minQty} onChange={e => setCoinForm({ ...coinForm, minQty: e.target.value })} />
+            <Input label="أكبر كمية شحن" required type="number" min={coinForm.minQty || 1} step="1" value={coinForm.maxQty} onChange={e => setCoinForm({ ...coinForm, maxQty: e.target.value })} />
+            <Button type="submit" disabled={coinSaving}>{coinSaving ? 'جاري الحفظ...' : 'حفظ وتجهيز المنتج'}</Button>
+          </form>
+        )}
+      </Modal>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={editing ? 'تعديل مورد' : 'إضافة مورد جديد'} size="xl">
         <form onSubmit={submit} className="max-h-[75vh] space-y-4 overflow-y-auto pr-1">
           <div className="rounded-lg border border-[color:rgb(var(--color-primary-rgb)/0.24)] bg-[color:rgb(var(--color-primary-rgb)/0.08)] px-2.5 py-1.5 text-xs text-[var(--color-text)]">
@@ -846,6 +893,7 @@ const AdminSuppliers = () => {
               <select className={glowSelectClass} value={form.adapterType || ''} onChange={(event) => setForm({ ...form, adapterType: event.target.value })}>
                 <option value="">التكامل الافتراضي</option>
                 <option value="canonical-b2b">Canonical B2B</option>
+                <option value="dealer-api">Dealer API (Bulala)</option>
               </select>
             </label>
             <select className={glowSelectClass} value={form.authType} onChange={(event) => setForm({ ...form, authType: event.target.value })}>
@@ -884,6 +932,7 @@ const AdminSuppliers = () => {
             <Button type="submit" size="sm">
               حفظ المورد
             </Button>
+            {editing?.id && isBulala(editing) && <Button type="button" variant="outline" onClick={() => openCoinSettings(editing)}>إعداد شحن العملات</Button>}
           </div>
         </form>
       </Modal>
