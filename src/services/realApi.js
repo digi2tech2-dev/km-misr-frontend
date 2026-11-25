@@ -2842,6 +2842,8 @@ const realApi = {
 
   // ── Suppliers (BE calls them "providers") ────────────────────────────────
   suppliers: {
+    getCoinSettings: async (id) => unwrap(await http.get(`/providers/${id}/coin-settings`)).settings,
+    saveCoinSettings: async (id, settings) => unwrap(await http.put(`/providers/${id}/coin-settings`, settings)),
     /**
      * GET /admin/providers → sendSuccess(res, { providers }, ...)
      */
